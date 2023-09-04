@@ -1,0 +1,222 @@
+= Ansible playbook for turning a PC into a set of core service VMs
+
+Ansible helps me build my home lab. 
+This playbook turns a PC running RHEL 9 into a hypervisor running a pile-load (that's the technical term) of Virtual Machines. 
+Each VM runs a set of services that support my home lab. 
+
+. *gateway* hosts Bind and Squid
+. *ipsal* (Internet Protocol Services, Application Level) hosts DHCPd and NTPd
+. *id* hosts Red Hat IDM (LDAP, CA, DNS)
+. *message* hosts Postfix
+. *monitor* hosts Prometheus, Grafana, and Elastic
+. *git* hosts Gitlab
+
+Under construction. Sections marked with !!! and ??? are notes to self. 
+
+If you can read Ansible's YAML, start with   
+https://github.com/nickhardiman/ansible-playbook-lab/blob/main/main.yml[main.yml]. 
+
+This playbook relies on a bunch (that's another technical term) of collections, including my https://github.com/nickhardiman/ansible-collection-platform[ansible-collection-platform].
+Check out requirements.yml, described below.
+
+
+==  requirements 
+
+Various roles and collections. 
+See the cheatsheet below. 
+
+
+
+== the KVM/QEMU hypervisor 
+
+A bootstrap shell script kicks off the install. 
+See instructions in 
+https://github.com/nickhardiman/ansible-playbook-lab/blob/main/machine-hypervisor.sh[machine-hypervisor.sh]
+
+
+== VMs 
+
+image::core-network.drawio.png[title="guests"] 
+
+The https://github.com/nickhardiman/ansible-playbook-lab/blob/main/group_vars/all/main.yml[defaults file] defines a lot of values. 
+For instance, most 
+MAC addresses are set to ** 52:54:00:02:00:* **,  and 
+IPv4 addresses are set to ** 192.168.135.* **. 
+Check out DHCP's 
+https://github.com/nickhardiman/ansible-collection-platform/blob/main/roles/dhcp_server/templates/dhcpd.conf.j2[config].
+
+.guests attached to bridges
+[%header,format=csv]
+|===
+name,         interface, MAC,               IP,              domain
+*netpublic0*,    *brpublic0*,    52:54:00:01:00:01, 192.168.1.1,     home
+gateway,      enp1s0,    52:54:00:01:00:03, 192.168.1.3,     home
+
+*netlab0*,  *brlab0*,   52:54:00:02:00:01, 192.168.135.1,   lab.example.com
+ ,           ,           52:54:00:02:00:02, 192.168.135.2,   lab.example.com
+gateway,      enp2s0,    52:54:00:02:00:03, 192.168.135.3,   lab.example.com
+ipsal,        enp1s0,    52:54:00:02:00:04, 192.168.135.4,   lab.example.com
+id,           enp1s0,    52:54:00:02:00:05, 192.168.135.5,   lab.example.com
+message,      enp1s0,    52:54:00:02:00:06, 192.168.135.6,   lab.example.com
+monitor,      enp1s0,    52:54:00:02:00:07, 192.168.135.7,   lab.example.com
+git,          enp1s0,    52:54:00:02:00:08, 192.168.135.8,   lab.example.com
+|===
+
+
+== cheat sheet
+
+=== PC and OS
+
+Start with a machine running RHEL 9. 
+A fresh minimal install is fine. 
+
+Only tested on a box with one ethernet interface, plugged into the network.
+
+
+=== install dependencies
+
+Script 
+https://raw.githubusercontent.com/nickhardiman/ansible-playbook-lab/main/machine-hypervisor.sh[machine-hypervisor.sh] 
+sets up everything on a freshly installed host. 
+This works with RHEL and Fedora. 
+Some things, like that "dnf install" line, won't work on other OSs.
+
+* Log into the hypervisor machine.
+* Download the script.
+
+[source,shell]
+....
+curl -O https://raw.githubusercontent.com/nickhardiman/ansible-playbook-lab/main/machine-hypervisor.sh 
+....
+
+* Read the script 
+* Follow the instructions and edit the script.
+* Run the script. 
+
+The script creates a new user named _ansible_user_
+along with a key pair named _ansible-key.priv_ and _ansible-key.pub_ 
+and sudoers privilege escalation.
+The playbook uses _ansible_user_ to connect to all the machines, 
+
+The script also clones the playbook repo and installs dependencies. 
+
+
+
+=== add Red Hat Subscription account to the vault
+
+Each new VM will connect to the RHSM (Red Hat Subscription Management) network,
+register, attach a subscription entitlement, and download from 
+Red Hat's CDN (Content Delivery Network).
+
+* Sign up for free at https://developers.redhat.com/.
+* Check your account works by logging in at https://access.redhat.com/.
+* Edit the vault file.
+* Enter your Red Hat Subscription Manager account.
+* Encrypt the file.
+
+[source,shell]
+....
+vim vault-credentials.yml
+echo 'my vault password' >  ~/my-vault-pass
+ansible-vault encrypt --vault-pass-file ~/my-vault-pass vault-credentials.yml  
+....
+
+
+=== edit inventory
+
+Set up these hosts in the inventory file inventory.ini. 
+
+*  install_host - where the playbook runs. Might be your workstation, or might be the hypervisor host, or might be another machine in your lab.  
+*  hypervisor - the physical machine that hosts the virtual machines. 
+
+
+=== run, the AAP1 way
+
+Build the network and machines.
+
+[source,shell]
+....
+ansible-playbook  --vault-pass-file ~/my-vault-pass  main.yml
+....
+
+Or override your RHSM values. 
+
+!!!  now auto-attach instead of   --extra-var="rhsm_pool_id=my_pool_id"
+
+[source,shell]
+....
+sudo ansible-playbook main.yml \
+    --extra-var="rhsm_user=my_user"  \
+    --extra-var='rhsm_password=my_password' 
+....
+
+Or build just one machine and change a few details. 
+
+[source,shell]
+....
+sudo ansible-playbook machine-dhcp.yml \
+    --extra-var="host=another-name"  \
+	  --extra-var="disk_size=40"   \
+	  --extra-var="if1_mac=52:54:00:12:34:56"
+....
+
+Or install RHEL 8, not 9.
+
+[source,shell]
+....
+sudo ansible-playbook machine-id.yml  \
+    --extra-var="os_variant=rhel8.5"  \
+    --extra-var="install_iso=/var/lib/libvirt/images/rhel-8.6-x86_64-dvd.iso"
+....
+
+
+=== run, the AAP2 way
+
+Create
+
+required?
+  --playbook-artifact-enable=false \
+
+[source,shell]
+....
+ansible-navigator run main.yml \
+  --become-password-file=~/my-pass \
+  --mode=stdout \
+  --eei hub1.lab.example.com/my_new_ee  \
+  --extra-var='rhsm_user=RH_user'  \
+  --extra-var='rhsm_password=RH_password' \
+  --extra-var='rhsm_pool_id=12345'  
+....
+
+
+=== check the VM console 
+
+The OS takes a couple minutes to install on a new VM. 
+You can't see much from the playbook output - each playbook exits when the build starts.
+
+Use virsh to see what's happening.
+
+[source,shell]
+....
+sudo virsh list -all
+sudo virsh console gateway.lab.example.com
+....
+
+A fresh kickstart install takes about 5 minutes, then the VM is powered down. 
+
+If you want to login to the console, two accounts are configured. 
+
+* user: root, password: Password;1
+* user: nick, password: Password;1
+
+
+
+== License
+
+MIT
+
+
+== Author Information
+
+Nick.
+

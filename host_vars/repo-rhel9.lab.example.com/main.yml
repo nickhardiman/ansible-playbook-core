@@ -1,0 +1,54 @@
+---
+# virt-install
+# These values override defaults.
+# default variables and their values are listed here. 
+#   https://github.com/nickhardiman/libvirt-guest/blob/main/defaults/main.yml
+
+# compute 
+# default 2 cores
+# default 4GiB memory
+
+# storage
+# default 30GiB volume
+# Package storage needs way more than the default 30GB disk
+# storage
+# size in GiB
+disk_size: 80
+# Add up the sizes below and make sure they fit in the disk_size.
+# partitions
+# 1 for /boot/efi                600M
+# 2 for /boot                    1024M
+# 3 LVM Physical Volume          76G * 1024 = 77824M
+pv_size: 77824
+# LVM logical volume for /root    4G * 1024 = 4096M
+lv_root: 4096
+# LVM logical volume for /var     70G * 1024 = 71680M
+lv_var: 71680
+# LVM volume for swap: 256M
+
+# network
+# MAC addresses are listed here.
+#   https://hardiman.consulting/rhel/9/unsorted/host1-libvirt-network.html
+nics:
+- 
+  name: enp1s0
+  mac: "{{ lab_mac_prefix }}:00:13"
+  net: net-lab
+  # !!! get rid of this?
+  # IP from DHCP
+  ip: "{{ lab_net_prefix }}.13"
+
+# OS
+# default rhel9
+host: repo-rhel9
+fqdn: "{{ host }}.lab.example.com"
+RPMs: 
+- createrepo
+- httpd
+- unzip
+- yum-utils
+
+# kickstart
+
+# accounts
+

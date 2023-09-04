@@ -1,0 +1,66 @@
+# Build the virtual machine hardware, install OS, and install apps.
+
+# !!! firewall port opening 
+# !!! gone walkies 
+# eg. 
+# git.lab.example.com requires firewall-cmd --add-service https --permanent
+
+# prerequisites 
+# git, the hypervisor, Ansible user, image storage and virtual network.
+# A bootstrap shell script sets these up.
+# See instructions in the README and machine-hypervisor.sh
+
+# Hypervisor
+- ansible.builtin.import_playbook: machine-hypervisor.yml
+- ansible.builtin.import_playbook: host-network.yml
+#
+# Each of these playbooks can be run separately. 
+# For machines that need to register with RHSM, use a vault file.
+#   ansible-playbook --vault-pass-file=~/my-vault-pass  machine-repo.yml
+# For machines that use local repos, there is no need to register.
+#   ansible-playbook  machine-git.yml
+#
+# Work around some chicken-and-egg problems. 
+# * No DHCP yet, so the first two machines have static IP addresses.
+# * No DNS yet, so use /etc/hosts records. 
+# * No local RPM repositories yet, so the first four update from RHSM CDN 
+# Use an account for RPM package downloads from 
+# RHSM CDN (Red Hat Subscription Management Content Delivery Network). 
+# Work around some access problems.
+# * No NAT, so use the gateway proxy.
+# * The install host does not use the new network's DNS. 
+#   Add /etc/hosts records so the install host can find all these machines.
+#
+# Gateway has a unique architecture. 
+# It is the only host with an interface on the public network and 
+# a second interface on the lab network.
+# It runs squid to proxy web requests to the Internet, and 
+# bind to proxy DNS requests to the Internet. 
+- ansible.builtin.import_playbook: image-gateway.yml
+- ansible.builtin.import_playbook: machine-gateway.yml
+# ipsal (Internet Protocol Services, Application Layer) provides dhcp and ntp
+- ansible.builtin.import_playbook: image-ipsal.yml
+- ansible.builtin.import_playbook: machine-ipsal.yml
+# DHCP is now available. 
+# Interfaces can now get info from DHCP.
+- ansible.builtin.import_playbook: image-id.yml
+- ansible.builtin.import_playbook: machine-id.yml
+# DNS is now available. 
+- ansible.builtin.import_playbook: image-message.yml
+- ansible.builtin.import_playbook: machine-message.yml
+# This playbook installs code from third-party sites.
+# * Elastic stack
+# * prometheus and grafana
+- ansible.builtin.import_playbook: image-monitor.yml
+- ansible.builtin.import_playbook: machine-monitor.yml
+# This playbook installs Gitlab from a third-party site.
+- ansible.builtin.import_playbook: image-git.yml
+- ansible.builtin.import_playbook: machine-git.yml
+
+# local reposync
+# So many RPM packages to mirror! This one takes an hour.
+#- ansible.builtin.import_playbook: machine-repo.yml
+
+# test the new stack
+- ansible.builtin.import_playbook: test-stack.yml
+

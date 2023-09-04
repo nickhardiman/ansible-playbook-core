@@ -1,0 +1,67 @@
+---
+# virt-install
+# These values override defaults.
+# default variables and their values are listed here. 
+#   https://github.com/nickhardiman/libvirt-guest/blob/main/defaults/main.yml
+# No gitlab packages for RHEL 9.
+# Gitlab packages for RHEL 8 are here.
+#   https://packages.gitlab.com/app/gitlab/gitlab-ce/search?q=gitlab-ce&filter=all&dist=el%2F8
+install_iso: /var/lib/libvirt/images/rhel-8.6-x86_64-dvd.iso
+os_variant: rhel8.5
+
+# compute 
+# default 2 cores
+# default 4GiB memory
+
+# storage
+# default 30GB disk
+
+# network
+# MAC addresses are listed here.
+#   https://hardiman.consulting/rhel/9/unsorted/host1-libvirt-network.html
+nics:
+- 
+  name: enp1s0
+  mac: "{{ lab_mac_prefix }}:00:08"
+  net: "{{ lab_libvirt_name }}"
+  # !!! get rid of this?
+  # IP from DHCP
+  ip: "{{ lab_net_prefix }}.8"
+
+net_services:
+  - ssh
+  - http
+  - https
+
+
+# OS
+host: git
+fqdn: "{{ host }}.lab.example.com"
+RPMs: 
+      - curl
+      - openssh-server
+      - openssl
+      - postfix
+      - tzdata
+
+# kickstart
+kickstart_template: "kvm-guest.ks.j2"
+
+# accounts
+
+# app
+gitlab_domain: git.lab.example.com
+gitlab_ssl_certificate: "/etc/pki/tls/certs/{{ gitlab_domain }}.pem"
+gitlab_ssl_certificate_key: "/etc/pki/tls/private/{{ gitlab_domain }}.key"
+gitlab_create_self_signed_cert: no
+gitlab_extra_settings:
+  - gitlab_rails:
+      - key: "env"
+        type: "plain"
+        value: |
+          {
+          "http_proxy" => "https://{{ lab_net_prefix }}.3:3128",
+          "https_proxy" => "https://{{ lab_net_prefix }}.3:3128",
+          "no_proxy" => "localhost, 127.0.0.1, example.com"
+          }
+

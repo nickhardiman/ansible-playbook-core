@@ -1,0 +1,38 @@
+- name: test domain
+  hosts: hypervisor
+  become: yes
+  gather_facts: no
+  vars:
+    fqdn: id.lab.example.com
+    #fqdn: does-not-exist
+  tasks:
+
+  # check 
+
+
+  # !!! If an instance is already running, skip this work. 
+  
+  - name: List only running VMs
+    community.libvirt.virt:
+      command: list_vms
+      state: running
+    register: r_running_vms
+  - name: "all running vms"
+    debug:
+      var: r_running_vms['list_vms']
+
+  - name: "{{ fqdn }} is running"
+    set_fact:
+      f_is_running: "{{ r_running_vms['list_vms'] is ansible.builtin.contains(fqdn) }}"
+  - debug:
+      var: f_is_running
+  - debug:
+      msg: when test 
+    when: f_is_running
+
+
+  - block:
+    - name: "do {{ fqdn }}"
+      debug:
+        msg: image work
+    when: not f_is_running

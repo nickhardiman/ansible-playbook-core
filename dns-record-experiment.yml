@@ -1,0 +1,22 @@
+- name: record experiment 
+  hosts: id
+  gather_facts: no
+  tasks:
+  - name: Ensure dns A record is present
+    community.general.ipa_dnsrecord:
+      ipa_host: id.lab.example.com
+      ipa_pass: Password;1
+      state: present
+      zone_name: lab.example.com
+      record_name: gateway
+      record_type: 'A'
+      record_value: '192.168.135.3'
+  - name: Ensure dns PTR record is present
+    community.general.ipa_dnsrecord:
+      ipa_host: id.lab.example.com
+      ipa_pass: Password;1
+      state: present
+      zone_name: 135.168.192.in-addr.arpa
+      record_name: 3
+      record_type: 'PTR'
+      record_value: 'gateway.lab.example.com.'

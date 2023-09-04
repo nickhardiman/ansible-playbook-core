@@ -1,0 +1,61 @@
+---
+# https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html-single/installing_identity_management/index
+
+# The "id" machine has one interface on the private libvirt network.
+# It uses gateway as a web proxy.
+# it hosts Red Hat IDM (Identity Management) services
+# https://access.redhat.com/products/identity-management/
+# It handles directory services, including DNS, users and X.509 certificates. 
+
+# Use a kickstart file to install and configure the OS.
+
+- name: kickstart a new machine 
+  hosts: message
+  become: yes
+  gather_facts: no
+  serial: 1
+  roles: 
+  - name: "kickstart the VM on hypervisor {{ groups['hypervisor'][0] }}"
+    role: nick.platform.libvirt_machine_kickstart
+    delegate_to: "{{ groups['hypervisor'][0] }}"
+  - name: "update /etc/hosts on install host {{ groups['install_host'][0] }}"
+    role: nick.platform.hosts_record
+    vars:
+      ip_address: "{{ nics[0]['ip'] }}"
+    delegate_to: "{{ groups['install_host'][0] }}"
+  - name: "run machine (it stops after install)"
+    role: nick.platform.libvirt_machine_start
+    delegate_to: "{{ groups['install_host'][0] }}"
+
+
+
+- name: configure new server machine
+  hosts: message
+  become: yes
+  gather_facts: no
+  serial: 1
+  vars_files:
+  - vault-credentials.yml
+  environment:
+    http_proxy: http://gateway.lab.example.com:3128
+    HTTPS_PROXY: http://gateway.lab.example.com:3128
+    no_proxy: localhost,127.0.0.1,example.com
+  roles:
+  - nick.platform.managed_node
+  - nick.platform.cdn_repo_consumer
+  - nick.platform.latest_packages
+  - nick.platform.server_cert
+  - nick.platform.smtp_server
+
+
+- name: keep image and config of the new machine
+  hosts: message
+  become: yes
+  gather_facts: no
+  serial: 1
+  roles: 
+  # create $FQDN-base.qcow2 image and $FQDN.xml config.
+  # if the $FQDN-base.qcow2 file already exists, this role does not change anything. 
+  - name: "copy the volume file and config, then delete the machine"
+    role: nick.platform.libvirt_machine_image
+    delegate_to: "{{ groups['hypervisor'][0] }}"

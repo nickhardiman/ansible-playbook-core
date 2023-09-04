@@ -1,0 +1,14 @@
+---
+- name: build new hypervisor
+  hosts: hypervisor
+  become: yes
+  gather_facts: yes
+  roles: 
+  - role: nick.platform.libvirt_host
+  - role: nick.platform.libvirt_storage
+  - role: nick.platform.libvirt_net_public
+  - role: nick.platform.libvirt_net_private
+
+# json_query requires jmespath install
+# see comments in 
+# hostvars/monitor.lab.example.com/main.yml

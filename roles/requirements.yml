@@ -1,0 +1,15 @@
+# run
+#   ansible-galaxy role install -r roles/requirements.yml 
+# This command installs roles to ~/.ansible/roles/
+# for more information, see
+#   https://galaxy.ansible.com/docs/using/installing.html
+#
+roles:
+#  - src: https://github.com/nickhardiman/libvirt-guest
+#  - src: https://github.com/nickhardiman/ansible-target
+#  - src: https://github.com/nickhardiman/ansible-web-server
+#  - src: https://github.com/nickhardiman/ansible-antora-generator
+  - name: geerlingguy.gitlab
+    version: 3.2.0
+  - name: cloudalchemy.prometheus
+  - name: cloudalchemy.grafana

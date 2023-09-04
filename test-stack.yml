@@ -1,0 +1,19 @@
+- name: test stack
+  hosts: install_host
+  gather_facts: no
+  tasks:
+
+  - name: check with ping
+    ping:
+
+
+# test monitor
+# prometheus - no password
+# curl http://monitor.lab.example.com:9090/
+# grafana - admin/redhat (see grafana_security above)
+# curl http://monitor.lab.example.com:3000/
+# ELK - elastic API
+# http://monitor.lab.example.com:9200/
+# ELK - kibana
+# http://monitor.lab.example.com:5601/
+

@@ -1,0 +1,66 @@
+#
+# remove the virtual machine
+- hosts: hypervisor
+  become: yes
+  gather_facts: no
+  vars:
+    hosts_to_delete: 
+    - dns
+    - dhcp
+    - repo
+  # ansible tower and controller don't play with vars_prompt.
+  vars_prompt:
+  - name: seriously
+    prompt: "Delete '{{ hosts_to_delete }}'? Seriously? Ctrl-C if no"
+  tasks:  
+
+# RHSM
+# !!! ignore_errors does not allow play to continue.
+  #  This task is "ok" if the OS is not registered and "changed" if it is.
+  #  subscription-manager unregister --username=name
+  - name: clear registration with Red Hat Subscription Management
+    community.general.redhat_subscription:
+      state: absent
+    delegate_to: "{{ item }}.lab.example.com"
+    loop: "{{ hosts_to_delete }}"
+    ignore_errors: yes
+
+
+# libvirt
+  - name: pull the plug
+    community.libvirt.virt:
+      name: "{{ item }}"
+      state: destroyed
+    loop: "{{ hosts_to_delete }}"
+    ignore_errors: yes
+  
+  # https://github.com/ansible-collections/community.libvirt/issues/40
+  - name: delete NVRAM file
+    file:
+      name: "/var/lib/libvirt/qemu/nvram/{{ item }}_VARS.fd"
+      state: absent
+    loop: "{{ hosts_to_delete }}"
+
+  - name: delete libvirt's domain
+    community.libvirt.virt:
+      name: "{{ item }}"
+      command: undefine
+    loop: "{{ hosts_to_delete }}"
+  
+  #https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/virtualization_deployment_and_administration_guide/sect-storage_volume_commands-deleting_storage_volumes
+  - name: delete libvirt's volume
+    ansible.builtin.command: 
+      cmd: "virsh vol-delete {{ item }}.qcow2 images"
+    loop: "{{ hosts_to_delete }}"
+
+# SSH keys
+  # delete from my user's config here
+  - name: clear host key from ~/.ssh
+    ansible.builtin.known_hosts:
+      name: "{{ item }}.lab.example.com"
+      state: absent
+    loop: "{{ hosts_to_delete }}"
+    delegate_to: localhost
+    connection: local
+    become: no
+

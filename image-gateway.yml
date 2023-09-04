@@ -1,0 +1,74 @@
+---
+# Build a new virtual machine. 
+# Install the OS and configure it. 
+# Add image and config to the library, and throw away the machine.
+
+
+# The "gateway" machine has two interfaces, one on the home network and one on the new libvirt network.
+# There is no DHCP yet so the second interface is assigned an IP address.
+# Use a kickstart file to set up this networking.
+#
+- name: kickstart a new machine 
+  hosts: gateway
+  become: yes
+  gather_facts: no
+  serial: 1
+  roles: 
+  - name: "kickstart the VM on hypervisor {{ groups['hypervisor'][0] }}"
+    role: nick.platform.libvirt_machine_kickstart
+    delegate_to: "{{ groups['hypervisor'][0] }}"
+  - name: "update /etc/hosts on install host {{ groups['install_host'][0] }}"
+    role: nick.platform.hosts_record
+    vars:
+      ip_address: "{{ nics[1]['ip'] }}"
+    delegate_to: "{{ groups['install_host'][0] }}"
+  - name: "run machine (it stops after install)"
+    role: nick.platform.libvirt_machine_start
+    delegate_to: "{{ groups['install_host'][0] }}"
+
+
+- name: configure new server machine
+  hosts: gateway
+  become: yes
+  gather_facts: no
+  vars_files:
+  - vault-credentials.yml
+  serial: 1
+  roles:
+  - nick.platform.managed_node
+  - nick.platform.cdn_repo_consumer
+  - nick.platform.latest_packages
+  - nick.platform.server_cert
+  - nick.platform.squid_proxy
+  - nick.platform.dns_forwarder
+
+    # !!! add time_server?
+    # or to ipsal
+    # https://hardiman.consulting/rhel/9/time/chrony.html
+    
+# smoke tests 
+# !!! add tests
+# squid
+#   curl -O -L "https://www.redhat.com/index.html" -x "gateway.lab.example.com:3128"
+# dns
+#   dig @192.168.134.5 dns.lab.example.com
+#   dig @192.168.134.5 192.168.134.5
+#   dig @192.168.134.5 www.google.com
+#   dig @192.168.134.5 142.250.179.22
+
+
+- name: keep image and config of the new machine
+  hosts: gateway
+  become: yes
+  gather_facts: no
+  serial: 1
+  roles: 
+  # create $FQDN-base.qcow2 image and $FQDN.xml config.
+  # if the $FQDN-base.qcow2 file already exists, this role does not change anything. 
+  - name: "copy the volume file and config, then delete the machine"
+    role: nick.platform.libvirt_machine_image
+    delegate_to: "{{ groups['hypervisor'][0] }}"
+  # - name: "delete the machine"
+  #   role: nick.platform.libvirt_machine_delete
+  #   delegate_to: "{{ groups['hypervisor'][0] }}"
+

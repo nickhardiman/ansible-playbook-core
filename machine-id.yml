@@ -1,0 +1,13 @@
+---
+
+- name: start a new instance of the machine.
+  hosts: id
+  become: yes
+  gather_facts: no
+  serial: 1
+  roles: 
+  - name: "create a new instance"
+    role: nick.platform.libvirt_machine_instance
+    delegate_to: "{{ groups['hypervisor'][0] }}"
+
+
