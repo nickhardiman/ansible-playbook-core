@@ -1,67 +1,51 @@
 ---
 
-# Ansible automation hub requires authentication.
-# Use your offline token here (not the much larger access token that expires in 5 minutes)
-# This token is revoked. 
-# create a token at https://console.redhat.com/ansible/automation-hub/token#
-# revoke a token at https://sso.redhat.com/auth/realms/redhat-external/account/applications
-my_offline_token: xxxxx
-
-
-# accounts
-user_ansible_password: Password;1
-
-# !!! this no longer required?
-# server certificate
-server_dir: /root/ca
-server_secret_passphrase: redhat
-ca_secret_passphrase: redhat
-
-
 # network
+# MAC addresses are listed here.
+#   https://github.com/nickhardiman/ansible-playbook-core/tree/main
 #
 public_net_short_name: public
 public_libvirt_name:   "net{{ public_net_short_name }}0"
-public_mac_prefix:     "52:54:00:01"
+public_mac_prefix:     "52:54:00:10"
 public_nmcli_name: "bridge-{{ public_net_short_name }}0"
 public_bridge_name: "br{{ public_net_short_name }}0"
 #
-lab_net_short_name: lab
+lab_net_short_name: build
 lab_libvirt_name:   "net{{ lab_net_short_name }}0"
-lab_net_prefix: "192.168.135"
-lab_mac_prefix: "52:54:00:02"
-lab_domain: lab.example.com
+lab_net_prefix: "192.168.11"
+lab_mac_prefix: "52:54:00:11"
+lab_domain: "{{ lab_net_short_name }}.example.com"
 # DNS Zone names in IPA Server
-lab_domain_forward: lab.example.com.
-lab_domain_reverse: "135.168.192.in-addr.arpa."
+lab_domain_forward: "{{ lab_domain }}."
+lab_domain_reverse: "11.168.192.in-addr.arpa."
 #
-# !!! duplicates. defined here and in host_vars
-# to list keys of this dict of dicts in a loop, use: 
-#       loop: "{{ address | list }}"
-address:
-  gateway:
-    mac: "{{ lab_mac_prefix }}:00:03"
-    ip_last_octet: "3"
-    ipv4: "{{ lab_net_prefix + '.3' }}"
-  ipsal:
-    mac: "{{ lab_mac_prefix }}:00:04"
-    ip_last_octet: "4"
-    ipv4: "{{ lab_net_prefix + '.4' }}"
-  id:
-    mac: "{{ lab_mac_prefix }}:00:05"
-    ip_last_octet: "5"
-    ipv4: "{{ lab_net_prefix  + '.5' }}"
-  message:
-    mac: "{{ lab_mac_prefix }}:00:06"
-    ip_last_octet: "6"
-    ipv4: "{{ lab_net_prefix  + '.6' }}"
-  monitor:
-    mac: "{{ lab_mac_prefix }}:00:07"
-    ip_last_octet: "7"
-    ipv4: "{{ lab_net_prefix  + '.7' }}"
-  git:
-    mac: "{{ lab_mac_prefix }}:00:08"
-    ip_last_octet: "8"
-    ipv4: "{{ lab_net_prefix  + '.8' }}"
+# # !!! duplicates. defined here and in host_vars
+# # to list keys of this dict of dicts in a loop, use: 
+# #       loop: "{{ address | list }}"
+# address:
+#   gateway:
+#     mac: "{{ lab_mac_prefix }}:00:03"
+#     ip_last_octet: "3"
+#     ipv4: "{{ lab_net_prefix + '.3' }}"
+#   ipsal:
+#     mac: "{{ lab_mac_prefix }}:00:04"
+#     ip_last_octet: "4"
+#     ipv4: "{{ lab_net_prefix + '.4' }}"
+#   id:
+#     mac: "{{ lab_mac_prefix }}:00:05"
+#     ip_last_octet: "5"
+#     ipv4: "{{ lab_net_prefix  + '.5' }}"
+#   message:
+#     mac: "{{ lab_mac_prefix }}:00:06"
+#     ip_last_octet: "6"
+#     ipv4: "{{ lab_net_prefix  + '.6' }}"
+#   monitor:
+#     mac: "{{ lab_mac_prefix }}:00:07"
+#     ip_last_octet: "7"
+#     ipv4: "{{ lab_net_prefix  + '.7' }}"
+#   git:
+#     mac: "{{ lab_mac_prefix }}:00:08"
+#     ip_last_octet: "8"
+#     ipv4: "{{ lab_net_prefix  + '.8' }}"
 
 

@@ -39,17 +39,17 @@ git config --global --list
 ssh-keygen -f ./ansible-key -q -N ""
 mv ansible-key  ansible-key.priv
 # Create the ansible_user account (not using --system). 
-useradd ansible_user
+sudo useradd ansible_user
 # Copy the keys to ansible_user's SSH config directory. 
-mkdir /home/ansible_user/.ssh
-chmod 0700 /home/ansible_user/.ssh
-cp ansible-key.priv  /home/ansible_user/.ssh/id_rsa
-chmod 0600 /home/ansible_user/.ssh/id_rsa
-cp ansible-key.pub  /home/ansible_user/.ssh/id_rsa.pub
+sudo mkdir /home/ansible_user/.ssh
+sudo chmod 0700 /home/ansible_user/.ssh
+sudo cp ansible-key.priv  /home/ansible_user/.ssh/id_rsa
+sudo chmod 0600 /home/ansible_user/.ssh/id_rsa
+sudo cp ansible-key.pub  /home/ansible_user/.ssh/id_rsa.pub
 # enable SSH to localhost with key-based login
-cat ansible-key.pub >> /home/ansible_user/.ssh/authorized_keys
-chmod 0600 /home/ansible_user/.ssh/authorized_keys
-chown -R ansible_user:ansible_user /home/ansible_user/.ssh
+sudo su -c 'cat ansible-key.pub >> /home/ansible_user/.ssh/authorized_keys'
+sudo chmod 0600 /home/ansible_user/.ssh/authorized_keys
+sudo chown -R ansible_user:ansible_user /home/ansible_user/.ssh
 # Keep a spare set of keys handy. 
 # Copy the keys to your SSH config directory. 
 cp ansible-key.priv  ansible-key.pub  $HOME/.ssh/
@@ -59,8 +59,7 @@ rm ansible-key.priv  ansible-key.pub
 
 
 # Allow passwordless sudo.
-echo 'ansible_user      ALL=(ALL)       NOPASSWD: ALL' > /etc/sudoers.d/ansible_user 
-
+sudo su -c 'echo "ansible_user      ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/ansible_user'
 
 # Check your work. 
 # Log in with key-based authentication and run the ID command as root.
@@ -96,24 +95,30 @@ git clone https://github.com/nickhardiman/ansible-collection-platform.git platfo
 
 
 # Get my lab playbook.
-cd ~/ansible/
-git clone https://github.com/nickhardiman/ansible-playbook-lab.git
-cd ansible-playbook-lab
+mkdir -p ~/ansible/playbooks/
+cd ~/ansible/playbooks/
+git clone https://github.com/nickhardiman/ansible-playbook-core.git
+cd ansible-playbook-core/
 
 
 # Authenticate to Red Hat Automation Hub using a token.
 # Get a token from https://console.redhat.com/ansible/automation-hub/token#
-# Set an environment variable.
+# Set an environment variable for identification.
+# You can also put your offline token in ansible.cfg.
 # export ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN=eyJhbGciOi...
 
 
 # Download Ansible libraries.
+# Install collections and roles from Ansible Galaxy 
+# (https://galaxy.ansible.com) and from Ansible Automation Hub
+# (https://console.redhat.com/ansible/automation-hub).
+# Installing from Ansible Automation Hub requires the env var 
+# ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN.
 # Install collections. 
 ansible-galaxy collection install -r collections/requirements.yml 
 # Install roles. 
 ansible-galaxy role install -r roles/requirements.yml 
 
 
-# set up the QEMU/KVM/libvirt hypervisor
-# ansible-playbook --ask-become-pass machine-hypervisor.yml
-
+# create machines
+# ansible-playbook main.yml
