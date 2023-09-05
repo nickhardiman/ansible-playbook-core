@@ -1,4 +1,4 @@
 .ssl
 .DS_Store
-#vault-credentials.yml
+vault-credentials.yml
 
