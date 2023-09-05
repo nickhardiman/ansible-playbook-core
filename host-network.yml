@@ -1,46 +1,20 @@
 ---
+# ??? should this be a role in
+# https://github.com/nickhardiman/ansible-collection-platform/tree/main/roles
 
 # route traffic to the core network services on another box
 # Requires some network shenanigans.
-# From a Mac workstation, add routing.
+# On a Mac workstation, add routing.
 #   sudo route add -net 192.168.135.0/24 192.168.1.135
-# On the remote host, enable forwarding.
-# Use the CLI command:
+# On the server, enable forwarding and add routes.
+
+# CLI equivalents of ansible.posix.sysct and rhel-system-roles.network
 #   sudo sysctl net.ipv4.ip_forward=1
-# or the ansible.posix.sysctl module (as below).
-# On the AAP2 host, add routing.
-# Use the CLI commands:
 #   sudo nmcli connection modify bridge-public0 +ipv4.routes "192.168.135.0/24 192.168.1.135"
 #   sudo nmcli con up bridge-public0
-# or use the rhel-system-roles.network role (as below).
 
-# rhel-system-roles.network
-# /usr/share/doc/rhel-system-roles/network/example-bridge_with_vlan-playbook.yml
-# creates a few things.
-#   brpublic0              linux bridge
-#   bridge-public0          bridge
-#   bridge-public0-enp2s0f0 ethernet
-#
-# CLI equivalents of rhel-system-roles.network
-# These CLI commands do something similar.
-#   # create a bridge device
-#   nmcli con add ifname brpublic0 type bridge
-#   nmcli con up brpublic0
-#   # connect ethernet port to bridge
-#   nmcli con down enp2s0f0
-#   nmcli con add type bridge-slave ifname enp2s0f0 master brpublic0
-#   nmcli con up brpublic0
-# check
-#   ip -brief link show type bridge
-#   ip route
-#   nmcli con
-#   nmcli device status
-#   sysctl net.ipv4.ip_forward
-# delete
-#   sudo nmcli con delete brpublic0-enp2s0f0
-#   sudo nmcli con delete brpublic0
 
-- name: Configure routing, forwarding, DNS for host network
+- name: Configure routing and forwarding for host network
   hosts: hypervisor
   become: true
   gather_facts: true
@@ -84,7 +58,5 @@
               dhcp4: true
               auto6: true
 
-    # no need to add DNS reverse zones to IPA server
-    # DNS forward zone "lab.example.com." will be defined when
-    # id is created, along with
-    # DNS reverse zone "136.168.192.in-addr.arpa."
+    # check
+    # ip route list

@@ -101,6 +101,26 @@ The playbook uses _ansible_user_ to connect to all the machines,
 The script also clones the playbook repo and installs dependencies. 
 
 
+=== set an API token
+
+After the hypervisor is installed, the role 
+https://github.com/nickhardiman/ansible-collection-platform/tree/main/roles/iso_rhel_download[iso_rhel_download] 
+downloads a RHEL 9.2 ISO file. 
+The role uses one of the 
+https://access.redhat.com/articles/3626371[Red Hat APIs], which requires an API token. 
+
+* Open the API token page. https://access.redhat.com/management/api
+* Click the button to generate a token.
+* Copy the token.
+* Paste the token into an environment variable.
+[source,shell]
+....
+export OFFLINE_TOKEN=eyJh...(about 600 more characters)...xmtyM
+....
+
+Don't use an automation hub token from
+https://console.redhat.com/ansible/automation-hub/token.
+
 
 === add Red Hat Subscription account to the vault
 

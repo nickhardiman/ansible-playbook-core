@@ -8,7 +8,9 @@
     - role: nick.platform.libvirt_storage
     - role: nick.platform.libvirt_net_public
     - role: nick.platform.libvirt_net_private
+    - role: nick.platform.iso_rhel_download
 
+# This is required by cloudalchemy.prometheus
 # json_query requires jmespath install
 # see comments in
 # hostvars/monitor.lab.example.com/main.yml
