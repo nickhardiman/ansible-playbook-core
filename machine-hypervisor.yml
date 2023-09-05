@@ -1,14 +1,29 @@
 ---
-- name: build new hypervisor
+- name: Build new hypervisor
   hosts: hypervisor
-  become: yes
-  gather_facts: yes
-  roles: 
-  - role: nick.platform.libvirt_host
-  - role: nick.platform.libvirt_storage
-  - role: nick.platform.libvirt_net_public
-  - role: nick.platform.libvirt_net_private
+  become: true
+  gather_facts: true
+  roles:
+    - role: nick.platform.libvirt_host
+    - role: nick.platform.libvirt_storage
+    - role: nick.platform.libvirt_net_public
+    - role: nick.platform.libvirt_net_private
 
 # json_query requires jmespath install
-# see comments in 
+# see comments in
 # hostvars/monitor.lab.example.com/main.yml
+  tasks:
+    - name: Install more Python RPM packages
+      ansible.builtin.dnf:
+        name:
+          - python3-pip
+          - python3-pip-wheel
+          - python3-jmespath
+          - python3.11-pip
+          - python3.11-pip-wheel
+        state: present
+
+    - name: Install jmespath for Python 3.11
+      ansible.builtin.pip:
+        name: jmespath
+        executable: pip3.11

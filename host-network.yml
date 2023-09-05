@@ -1,28 +1,28 @@
 ---
 
 # route traffic to the core network services on another box
-# Requires some network shenanigans. 
-# From a Mac workstation, add routing. 
+# Requires some network shenanigans.
+# From a Mac workstation, add routing.
 #   sudo route add -net 192.168.135.0/24 192.168.1.135
 # On the remote host, enable forwarding.
 # Use the CLI command:
 #   sudo sysctl net.ipv4.ip_forward=1
 # or the ansible.posix.sysctl module (as below).
 # On the AAP2 host, add routing.
-# Use the CLI commands: 
+# Use the CLI commands:
 #   sudo nmcli connection modify bridge-public0 +ipv4.routes "192.168.135.0/24 192.168.1.135"
 #   sudo nmcli con up bridge-public0
 # or use the rhel-system-roles.network role (as below).
 
 # rhel-system-roles.network
-# /usr/share/doc/rhel-system-roles/network/example-bridge_with_vlan-playbook.yml 
+# /usr/share/doc/rhel-system-roles/network/example-bridge_with_vlan-playbook.yml
 # creates a few things.
 #   brpublic0              linux bridge
 #   bridge-public0          bridge
 #   bridge-public0-enp2s0f0 ethernet
 #
 # CLI equivalents of rhel-system-roles.network
-# These CLI commands do something similar. 
+# These CLI commands do something similar.
 #   # create a bridge device
 #   nmcli con add ifname brpublic0 type bridge
 #   nmcli con up brpublic0
@@ -36,21 +36,21 @@
 #   nmcli con
 #   nmcli device status
 #   sysctl net.ipv4.ip_forward
-# delete                      
+# delete
 #   sudo nmcli con delete brpublic0-enp2s0f0
 #   sudo nmcli con delete brpublic0
 
-- name: configure routing, forwarding, DNS for host network
+- name: Configure routing, forwarding, DNS for host network
   hosts: hypervisor
-  become: yes
-  gather_facts: yes
-  roles: 
+  become: true
+  gather_facts: true
+  roles:
 
   tasks:
 
     # https://docs.ansible.com/ansible/latest/collections/ansible/posix/sysctl_module.html
-    # Set ip forwarding on in /proc and in the sysctl file and reload if necessary
-    - ansible.posix.sysctl:
+    - name: Set ip forwarding on in /proc and in the sysctl file and reload if necessary
+      ansible.posix.sysctl:
         name: net.ipv4.ip_forward
         value: '1'
         sysctl_set: true
@@ -62,11 +62,11 @@
         name: rhel-system-roles
         state: present
 
-    #
-    # change bridge profile, add a route
+    # Add a route to the virtual machines on host1
+    # by changing the bridge profile.
     # requires gather_facts to set ansible_python
     # not convinced this finishes with re-activation "nmcli con up bridge-public0"
-    - name: use rhel-system-role network
+    - name: Use rhel-system-role network
       ansible.builtin.include_role:
         name: rhel-system-roles.network
       vars:
@@ -75,19 +75,16 @@
             state: up
             type: bridge
             interface_name: "{{ public_bridge_name }}"
-            #interface_name defaults to the connection name
-            # !!! this route shouldnt be here
-            # !!! copy to host-network.yml
+            # interface_name defaults to the connection name
             ip:
               route:
                 - network: 192.168.136.0
                   prefix: 24
                   gateway: 192.168.1.195
-              dhcp4: yes
-              auto6: yes
+              dhcp4: true
+              auto6: true
 
     # no need to add DNS reverse zones to IPA server
-    # DNS forward zone "lab.example.com." will be defined when 
+    # DNS forward zone "lab.example.com." will be defined when
     # id is created, along with
-    # DNS reverse zone "136.168.192.in-addr.arpa." 
-    
+    # DNS reverse zone "136.168.192.in-addr.arpa."
