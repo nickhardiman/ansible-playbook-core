@@ -1,0 +1,25 @@
+- name: Configure new server machine
+  hosts: message
+  become: true
+  gather_facts: false
+  serial: 1
+  environment:
+    http_proxy: "http://gateway.{{ lab_domain }}:3128"
+    HTTPS_PROXY: "http://gateway.{{ lab_domain }}:3128"
+    no_proxy: localhost,127.0.0.1,example.com
+  #
+  roles:
+    #- role: nick.platform.dns_records
+    - role: nick.platform.dns_record
+      vars:
+        zone_forward_name: "{{ lab_domain_forward }}"
+        # remove domain, leave host and maybe subdomain
+        # !!! hardcoded
+        record_a_name: "{{ inventory_hostname | regex_replace( '.' + lab_domain) }}"
+        record_a_value: "{{ nics[0]['ip'] }}"
+        zone_reverse_name: "{{ lab_domain_reverse }}"
+        # use the last octet only
+        record_ptr_name: "{{ nics[0]['ip'].split('.')[3] }}"
+        # DNS is fussy about root domain '.'
+        record_ptr_value: "{{ inventory_hostname + '.' }}"
+

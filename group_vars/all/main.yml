@@ -18,34 +18,3 @@ lab_domain: "{{ lab_net_short_name }}.example.com"
 # DNS Zone names in IPA Server
 lab_domain_forward: "{{ lab_domain }}."
 lab_domain_reverse: "11.168.192.in-addr.arpa."
-#
-# # !!! duplicates. defined here and in host_vars
-# # to list keys of this dict of dicts in a loop, use: 
-# #       loop: "{{ address | list }}"
-# address:
-#   gateway:
-#     mac: "{{ lab_mac_prefix }}:00:03"
-#     ip_last_octet: "3"
-#     ipv4: "{{ lab_net_prefix + '.3' }}"
-#   ipsal:
-#     mac: "{{ lab_mac_prefix }}:00:04"
-#     ip_last_octet: "4"
-#     ipv4: "{{ lab_net_prefix + '.4' }}"
-#   id:
-#     mac: "{{ lab_mac_prefix }}:00:05"
-#     ip_last_octet: "5"
-#     ipv4: "{{ lab_net_prefix  + '.5' }}"
-#   message:
-#     mac: "{{ lab_mac_prefix }}:00:06"
-#     ip_last_octet: "6"
-#     ipv4: "{{ lab_net_prefix  + '.6' }}"
-#   monitor:
-#     mac: "{{ lab_mac_prefix }}:00:07"
-#     ip_last_octet: "7"
-#     ipv4: "{{ lab_net_prefix  + '.7' }}"
-#   git:
-#     mac: "{{ lab_mac_prefix }}:00:08"
-#     ip_last_octet: "8"
-#     ipv4: "{{ lab_net_prefix  + '.8' }}"
-
-
