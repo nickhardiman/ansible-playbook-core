@@ -2,9 +2,9 @@
 # virt-install
 # These values override defaults.
 # default variables and their values are listed here. 
-#   https://github.com/nickhardiman/libvirt-guest/blob/main/defaults/main.yml
+#   https://github.com/nickhardiman/ansible-collection-platform/blob/main/roles/libvirt_machine_kickstart/defaults/main.yml
 # No ELK packages for RHEL 9.
-install_iso: /var/lib/libvirt/images/rhel-8.6-x86_64-dvd.iso
+install_iso: /var/lib/libvirt/images/rhel-8.8-x86_64-dvd.iso
 os_variant: rhel8.5
  
 # compute 
@@ -35,17 +35,17 @@ net_services:
 
 # OS
 host: monitor
-fqdn: "{{ host }}.lab.example.com"
-RPMs: 
-- httpd
-- python3-jmespath
-- python3-libselinux
-- python3-libsemanage
-- python3-pip
-- python3-policycoreutils
+fqdn: "{{ host }}.{{ lab_domain }}"
+RPMs:
+  - httpd
+  - python3-jmespath
+  - python3-libselinux
+  - python3-libsemanage
+  - python3-pip
+  - python3-policycoreutils
 
 # !!!
-# Prometheus also requires these installs on the RHEL 9 Ansible controller. 
+# Prometheus role also requires these installs on the RHEL 9 Ansible controller. 
 # The json_query plugin depends on jmespath in python3.11 directory, not the default 3.9.
 # dnf install python3.11-pip
 # /usr/bin/pip3.11 install jmespath
@@ -54,9 +54,5 @@ RPMs:
 # TASK [cloudalchemy.prometheus : Get all file_sd files from scrape_configs] *******************************************************************
 # fatal: [monitor.lab.example.com]: FAILED! => {"msg": "You need to install \"jmespath\" prior to running json_query filter"}
 
-
 # kickstart
 kickstart_template: "kvm-guest.ks.j2"
-
-# accounts
-

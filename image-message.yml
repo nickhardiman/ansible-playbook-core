@@ -6,6 +6,8 @@
 # it hosts Postfix, an SMTP server.
 
 # Use a kickstart file to install and configure the OS.
+
+
 # create a few variables like "volume_image_file_exists"
 - name: add image facts to hostvars
   hosts: message
@@ -24,7 +26,7 @@
   gather_facts: false
   serial: 1
   pre_tasks:
-    - name: don't overwrite anything
+    - name: "If image exists, stop here"
       meta: end_host
       when: volume_image_file_exists
   roles:
@@ -103,14 +105,14 @@
     - role: nick.platform.smtp_server
 
 
-- name: keep image and config of the new machine
+- name: Keep image and config of the new machine
   hosts: message
-  become: yes
-  gather_facts: no
+  become: true
+  gather_facts: false
   serial: 1
   roles: 
   # create $FQDN-base.qcow2 image and $FQDN.xml config.
   # if the $FQDN-base.qcow2 file already exists, this role does not change anything. 
-  - name: "copy the volume file and config, then delete the machine"
+  - name: "Copy the volume file and config, then delete the machine"
     role: nick.platform.libvirt_machine_image
     delegate_to: "{{ groups['hypervisor'][0] }}"

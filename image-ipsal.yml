@@ -28,7 +28,7 @@
   gather_facts: false
   serial: 1
   pre_tasks:
-    - name: don't overwrite anything
+    - name: "If image exists, stop here"
       meta: end_host
       when: volume_image_file_exists
   roles:
