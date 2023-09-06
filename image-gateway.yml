@@ -14,6 +14,7 @@
 # routes to other boxes missing 
 
 
+# create a few variables like "volume_image_file_exists"
 - name: add image facts to hostvars
   hosts: gateway
   become: true
@@ -53,7 +54,7 @@
     - name: "update /etc/hosts on install host {{ groups['install_host'][0] }}"
       role: nick.platform.hosts_record
       vars:
-        h_ip_address: "{{ nics[1]['ip'] }}"
+        h_ip_address: "{{ nics[0]['ip'] }}"
         h_fqdn: "{{ fqdn }}"
         h_host: "{{ host }}"
       delegate_to: "{{ groups['install_host'][0] }}"
@@ -108,12 +109,12 @@
   become: true
   gather_facts: false
   serial: 1
-    
+  #
   pre_tasks:
-    - name: "don't overwrite anything"
+    - name: "If base image exists, stop here"
       ansible.builtin.meta: end_host
       when: volume_base_file_exists
-
+  #
   roles:
     # create $FQDN-base.qcow2 image and $FQDN.xml config.
     # if the $FQDN-base.qcow2 file already exists, this role does not change anything. 
@@ -121,5 +122,13 @@
       role: nick.platform.libvirt_machine_image
       delegate_to: "{{ groups['hypervisor'][0] }}"
 
+
+# Create virtual machine template
+# !!! conversion of VM image to VM image template is missing 
+# see virt-sysprep here:
+# 11.2. Creating virtual machine templates
+# https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html-single/configuring_and_managing_virtualization/index#assembly_creating-virtual-machine-templates_cloning-virtual-machines
+
 # checks 
 # virsh vol-list images
+# see TASK [nick.platform.libvirt_machine_image : list libvirt's volumes]

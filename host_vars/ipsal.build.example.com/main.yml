@@ -2,7 +2,7 @@
 # virt-install
 # These values override defaults.
 # default variables and their values are listed here. 
-#   https://github.com/nickhardiman/libvirt-guest/blob/main/defaults/main.yml
+#   https://github.com/nickhardiman/ansible-collection-platform/blob/main/roles/libvirt_machine_kickstart/defaults/main.yml
 
 # compute 
 # default 2 cores
@@ -45,12 +45,10 @@ net_services:
 
 # OS
 host: ipsal
-fqdn: "{{ host }}.lab.example.com"
+fqdn: "{{ host }}.{{ lab_domain }}"
 RPMs: 
 - dhcp-server
 - python3-cryptography
 
 # kickstart
-kickstart_template: "{{ fqdn }}.ks.j2"
-
-# accounts
+kickstart_template: "ipsal.lab.example.com.ks.j2"

@@ -42,5 +42,3 @@ RPMs:
 
 # kickstart
 kickstart_template: "gateway.lab.example.com.ks.j2"
-
-# accounts
