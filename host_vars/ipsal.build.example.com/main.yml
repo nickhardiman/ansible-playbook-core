@@ -4,12 +4,12 @@
 # default variables and their values are listed here. 
 #   https://github.com/nickhardiman/ansible-collection-platform/blob/main/roles/libvirt_machine_kickstart/defaults/main.yml
 
-# compute 
+# compute
 # default 2 cores
 # default 4GiB memory
 
 # storage
-# smaller than the 
+# smaller than the
 # default 30GB disk
 # size in GiB
 disk_size: 13
@@ -29,7 +29,7 @@ lv_var: 4096
 # MAC addresses are listed here.
 #   https://hardiman.consulting/rhel/9/unsorted/host1-libvirt-network.html
 nics:
-- 
+-
   name: enp1s0
   mac: "{{ lab_mac_prefix }}:00:04"
   net: "{{ lab_libvirt_name }}"
@@ -46,9 +46,9 @@ net_services:
 # OS
 host: ipsal
 fqdn: "{{ host }}.{{ lab_domain }}"
-RPMs: 
-- dhcp-server
-- python3-cryptography
+RPMs:
+  - dhcp-server
+  - python3-cryptography
 
 # kickstart
 kickstart_template: "ipsal.lab.example.com.ks.j2"

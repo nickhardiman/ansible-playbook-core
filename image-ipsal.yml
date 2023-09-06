@@ -82,7 +82,7 @@
     - ansible.builtin.setup:
   #
   roles:
-  - nick.platform.managed_node
+  - role: nick.platform.managed_node
   - name: "update /etc/hosts with gateway address"
     role: nick.platform.hosts_record
     # !!! hardcoded
@@ -90,12 +90,15 @@
       h_ip_address: "{{ lab_net_prefix }}.3"
       h_fqdn: "gateway.{{ lab_domain }}"
       h_host: gateway
-  - nick.platform.dns_client_of_gateway
-  - nick.platform.cdn_repo_consumer
-  - nick.platform.latest_packages
-  - nick.platform.server_cert
-  - nick.platform.dhcp_server
-  - nick.platform.ntp_server
+  - role: nick.platform.dns_client_of_gateway
+  - role: nick.platform.cdn_repo_consumer
+    vars:
+      server_proxy_hostname: "gateway.{{ lab_domain }}"
+      server_proxy_port: 3128
+  - role: nick.platform.latest_packages
+  - role: nick.platform.server_cert
+  - role: nick.platform.dhcp_server
+  - role: nick.platform.ntp_server
 
 
 # smoke tests 

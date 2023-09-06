@@ -10,4 +10,9 @@
     role: nick.platform.libvirt_machine_instance
     delegate_to: "{{ groups['hypervisor'][0] }}"
 
+  tasks:
 
+  - name: Wait for new server to be ready
+    ansible.builtin.wait_for_connection:
+      timeout: 120
+    become: no

@@ -98,7 +98,7 @@
 # squid
 #   curl -O -L "https://www.redhat.com/index.html" -x "gateway.lab.example.com:3128"
 # dns
-#   dig @192.168.134.5 dns.lab.example.com
+#   dig @192.168.11.3 dns.lab.example.com
 #   dig @192.168.134.5 192.168.134.5
 #   dig @192.168.134.5 www.google.com
 #   dig @192.168.134.5 142.250.179.22
