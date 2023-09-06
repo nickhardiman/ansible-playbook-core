@@ -1,7 +1,0 @@
-- name: test ISO download
-  hosts: hypervisor
-  become: yes
-  gather_facts: no
-  roles:
-    - nick.platform.iso_rhel_download
-

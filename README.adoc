@@ -62,8 +62,28 @@ monitor,      enp1s0,    52:54:00:02:00:07, 192.168.135.7,   lab.example.com
 git,          enp1s0,    52:54:00:02:00:08, 192.168.135.8,   lab.example.com
 |===
 
+=== Libvirt definition files 
+
+Each new VM is defined by libvirt config. 
+An XML file for each new VM is stored in /root/libvirt/ on the hypervisor. 
+
+[source,shell]
+....
+[root@host libvirt]# cat gateway.build.example.com.xml 
+<domain type='kvm'>
+  <name>gateway.build.example.com</name>
+  <uuid>e8ac5629-37e7-443b-946e-373b60adc84d</uuid>
+  <metadata>
+
+...hundreds of lines...
+
+    </rng>
+  </devices>
+</domain>
+....
 
 == cheat sheet
+
 
 === PC and OS
 
@@ -151,9 +171,72 @@ Set up these hosts in the inventory file inventory.ini.
 *  hypervisor - the physical machine that hosts the virtual machines. 
 
 
+=== fix the IP address of gateway 
+
+IP address of the gateway VM is fixed. 
+
+* IP address: 
+https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.build.example.com/main.yml#L21
+* MAC address: https://github.com/nickhardiman/ansible-playbook-core/blob/main/group_vars/all/main.yml#L9 and https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.build.example.com/main.yml#L18
+
+
+Change your DHCP service to dish out this IP address to the MAC address. 
+
+
+!!! this is a crap idea. 
+Replace with something that allows a dynamically allocated IPv4 address and copies it to config. 
+
+
+=== update ansible_user public key 
+
+!!! another dumb-ass oversight. 
+Why not do this automatically? 
+
+Public key is fixed here. 
+https://github.com/nickhardiman/ansible-collection-platform/blob/main/roles/libvirt_machine_kickstart/defaults/main.yml#L88
+
+
+[source,shell]
+....
+user_ansible_public_key: |
+  ssh-rsa AAA...YO0= pubkey for ansible
+....
+
+It should be sourced from the new ansible_user account. 
+
+
+=== create a CA certificate and key 
+
+!!! Half-assed approach to PKI. 
+Replace with IdM/IPA management. 
+
+Role 
+https://github.com/nickhardiman/ansible-collection-platform/tree/main/roles/server_cert
+uses the CA certificate to update trust anchors on VMs and to create server certificates.
+New server certs are stored in /etc/pki/tls/certs/. 
+
+
+files 
+
+CA private key, a password protected file on the hypervisor here. 
+
+* /etc/pki/tls/private/ca-certificate.key
+
+CA certificate, a file on the hypervisor here. 
+
+* /etc/pki/ca-trust/source/anchors/ca-certificate.pem
+
+Any point storing it here? 
+
+* https://github.com/nickhardiman/ansible-playbook-core/blob/main/files/ca-certificate.pem
+
+
 === run, the AAP1 way
 
 Build the network and machines.
+
+Option --vault-pass-file is required when a new virtual machine gets registered to RHSM. 
+
 
 [source,shell]
 ....

@@ -57,6 +57,14 @@ rm ansible-key.priv  ansible-key.pub
 # This location is set in ansible.cfg. 
 # private_key_file = /home/nick/.ssh/ansible-key.priv
 
+# !!! pubkey update is missing. 
+# Public key is fixed here. 
+# https://github.com/nickhardiman/ansible-collection-platform/blob/main/roles/libvirt_machine_kickstart/defaults/main.yml#L88
+# [source,shell]
+# ....
+# user_ansible_public_key: |
+#   ssh-rsa AAA...YO0= pubkey for ansible
+# ....
 
 # Allow passwordless sudo.
 sudo su -c 'echo "ansible_user      ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/ansible_user'
