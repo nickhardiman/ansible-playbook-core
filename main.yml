@@ -13,7 +13,8 @@
 # Hypervisor
 - ansible.builtin.import_playbook: machine-hypervisor.yml
 - ansible.builtin.import_playbook: host-network.yml
-#
+
+# VMs
 # Each of these playbooks can be run separately. 
 # For machines that need to register with RHSM, use a vault file.
 #   ansible-playbook --vault-pass-file=~/my-vault-pass  machine-repo.yml
@@ -56,10 +57,6 @@
 # This playbook installs Gitlab from a third-party site.
 - ansible.builtin.import_playbook: image-git.yml
 - ansible.builtin.import_playbook: machine-git.yml
-
-# local reposync
-# So many RPM packages to mirror! This one takes an hour.
-#- ansible.builtin.import_playbook: machine-repo.yml
 
 # test the new stack
 - ansible.builtin.import_playbook: test-stack.yml
