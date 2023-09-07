@@ -101,6 +101,9 @@
         # DNS is fussy about root domain '.'
         record_ptr_value: "{{ inventory_hostname + '.' }}"
     - role: nick.platform.cdn_repo_consumer
+      vars:
+        server_proxy_hostname: "gateway.{{ lab_domain }}"
+        server_proxy_port: 3128
     - role: nick.platform.latest_packages
     - role: nick.platform.smtp_server
 
