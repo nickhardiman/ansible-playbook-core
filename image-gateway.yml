@@ -54,7 +54,7 @@
     - name: "update /etc/hosts on install host {{ groups['install_host'][0] }}"
       role: nick.platform.hosts_record
       vars:
-        h_ip_address: "{{ nics[0]['ip'] }}"
+        h_ip_address: "{{ nics[1]['ip'] }}"
         h_fqdn: "{{ fqdn }}"
         h_host: "{{ host }}"
       delegate_to: "{{ groups['install_host'][0] }}"

@@ -8,10 +8,13 @@
 #   curl -O https://raw.githubusercontent.com/nickhardiman/ansible-playbook-lab/main/machine-hypervisor.sh 
 # Read it. 
 # Edit and change my details to yours.
-# Set ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN (see below)
+# Set ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN
+# Set OFFLINE_TOKEN
 # Run this script
 #   bash -x machine-hypervisor.sh
 
+# hostname 
+# hostnamectl hostname host.core.example.com
 
 # SSH security
 # if SSH service on this box is accessible to the Internet
@@ -114,6 +117,18 @@ cd ansible-playbook-core/
 # Set an environment variable for identification.
 # You can also put your offline token in ansible.cfg.
 # export ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN=eyJhbGciOi...
+
+
+# Authenticate to Red Hat portal using an API token.
+# After the hypervisor is installed, 
+# the role iso_rhel_download downloads a RHEL 9.2 ISO file. 
+# The role uses one of the Red Hat APIs, which requires 
+# an API token.
+# Open the API token page. https://access.redhat.com/management/api
+# Click the button to generate a token.
+# Copy the token.
+# Paste the token into an environment variable.
+# export OFFLINE_TOKEN=eyJh...(about 600 more characters)...xmtyM
 
 
 # Download Ansible libraries.

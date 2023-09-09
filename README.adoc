@@ -93,12 +93,15 @@ A fresh minimal install is fine.
 Only tested on a box with one ethernet interface, plugged into the network.
 
 
-=== install dependencies
+=== edit the bootstrap script
 
 Script 
 https://raw.githubusercontent.com/nickhardiman/ansible-playbook-lab/main/machine-hypervisor.sh[machine-hypervisor.sh] 
 sets up everything on a freshly installed host. 
-This works with RHEL and Fedora. 
+Or at least it does when I haven't improved things
+(for "improve", read "broken").
+
+I lightly tested this with RHEL and Fedora. 
 Some things, like that "dnf install" line, won't work on other OSs.
 
 * Log into the hypervisor machine.
@@ -111,14 +114,6 @@ curl -O https://raw.githubusercontent.com/nickhardiman/ansible-playbook-lab/main
 
 * Read the script 
 * Follow the instructions and edit the script.
-* Run the script. 
-
-The script creates a new user named _ansible_user_
-along with a key pair named _ansible-key.priv_ and _ansible-key.pub_ 
-and sudoers privilege escalation.
-The playbook uses _ansible_user_ to connect to all the machines, 
-
-The script also clones the playbook repo and installs dependencies. 
 
 
 === set an API token
@@ -229,6 +224,18 @@ CA certificate, a file on the hypervisor here.
 Any point storing it here? 
 
 * https://github.com/nickhardiman/ansible-playbook-core/blob/main/files/ca-certificate.pem
+
+
+=== run the bootstrap script 
+
+* Run the script. 
+
+The script creates a new user named _ansible_user_
+along with a key pair named _ansible-key.priv_ and _ansible-key.pub_ 
+and sudoers privilege escalation.
+The playbook uses _ansible_user_ to connect to all the machines, 
+
+The script also clones the playbook repo and installs dependencies. 
 
 
 === run, the AAP1 way
