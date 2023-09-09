@@ -50,10 +50,7 @@
 - ansible.builtin.import_playbook: image-message.yml
 - ansible.builtin.import_playbook: machine-message.yml
 # This playbook installs code from third-party sites.
-# * Elastic stack
-- ansible.builtin.import_playbook: image-log.yml
-- ansible.builtin.import_playbook: machine-log.yml
-# * prometheus and grafana
+# Elastic stack, prometheus and grafana
 - ansible.builtin.import_playbook: image-monitor.yml
 - ansible.builtin.import_playbook: machine-monitor.yml
 # This playbook installs Gitlab from a third-party site.
