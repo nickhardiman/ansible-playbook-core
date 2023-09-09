@@ -69,9 +69,9 @@ An XML file for each new VM is stored in /root/libvirt/ on the hypervisor.
 
 [source,shell]
 ....
-[root@host libvirt]# cat gateway.build.example.com.xml 
+[root@host libvirt]# cat gateway.core.example.com.xml 
 <domain type='kvm'>
-  <name>gateway.build.example.com</name>
+  <name>gateway.core.example.com</name>
   <uuid>e8ac5629-37e7-443b-946e-373b60adc84d</uuid>
   <metadata>
 
@@ -176,8 +176,8 @@ Set up these hosts in the inventory file inventory.ini.
 IP address of the gateway VM is fixed. 
 
 * IP address: 
-https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.build.example.com/main.yml#L21
-* MAC address: https://github.com/nickhardiman/ansible-playbook-core/blob/main/group_vars/all/main.yml#L9 and https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.build.example.com/main.yml#L18
+https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.core.example.com/main.yml#L21
+* MAC address: https://github.com/nickhardiman/ansible-playbook-core/blob/main/group_vars/all/main.yml#L9 and https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.core.example.com/main.yml#L18
 
 
 Change your DHCP service to dish out this IP address to the MAC address. 
