@@ -7,7 +7,7 @@
 
 # Log into your RHEL 9 install host.
 # Download this script.
-#   curl -O https://raw.githubusercontent.com/nickhardiman/ansible-playbook-lab/main/machine-hypervisor.sh 
+#   curl -O https://raw.githubusercontent.com/nickhardiman/ansible-playbook-core/main/bootstrap.sh 
 # Read it. 
 # Edit and change my details to yours.
 # More details below. 
@@ -16,7 +16,7 @@
 # 3. Change git name, email and user.
 # 4. Set RHSM (Red Hat Subscription Manager) account.
 # Run this script
-#   bash -x machine-hypervisor.sh
+#   bash -x bootstrap.sh
 
 #-------------------------
 # Edit and change my details to yours.

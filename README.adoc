@@ -31,7 +31,7 @@ See the cheatsheet below.
 
 A bootstrap shell script kicks off the install. 
 See instructions in 
-https://github.com/nickhardiman/ansible-playbook-lab/blob/main/machine-hypervisor.sh[machine-hypervisor.sh]
+https://github.com/nickhardiman/ansible-playbook-lab/blob/main/bootstrap.sh[bootstrap.sh].
 
 
 == VMs 
@@ -96,10 +96,10 @@ Only tested on a box with one ethernet interface, plugged into the network.
 === edit the bootstrap script
 
 Script 
-https://raw.githubusercontent.com/nickhardiman/ansible-playbook-lab/main/machine-hypervisor.sh[machine-hypervisor.sh] 
+https://github.com/nickhardiman/ansible-playbook-core/blob/main/bootstrap.sh[bootstrap.sh] 
 sets up everything on a freshly installed host. 
 Or at least it does when I haven't improved things
-(for "improve", read "broken").
+(for "improved", read "broken").
 
 I lightly tested this with RHEL and Fedora. 
 Some things, like that "dnf install" line, won't work on other OSs.
@@ -109,7 +109,7 @@ Some things, like that "dnf install" line, won't work on other OSs.
 
 [source,shell]
 ....
-curl -O https://raw.githubusercontent.com/nickhardiman/ansible-playbook-lab/main/machine-hypervisor.sh 
+curl -O https://raw.githubusercontent.com/nickhardiman/ansible-playbook-lab/main/bootstrap.sh 
 ....
 
 * Read the script 

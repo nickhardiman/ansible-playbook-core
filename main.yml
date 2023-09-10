@@ -6,9 +6,10 @@
 # git.lab.example.com requires firewall-cmd --add-service https --permanent
 
 # prerequisites 
-# git, the hypervisor, Ansible user, image storage and virtual network.
 # A bootstrap shell script sets these up.
-# See instructions in the README and machine-hypervisor.sh
+# git, the hypervisor, Ansible user and SSH keypair, image storage, images, 
+# CA certificates, API keys, RHSM account, Ansible core, Ansible libraries.
+# See instructions in the README and bootstrap.sh
 
 # Hypervisor
 - ansible.builtin.import_playbook: machine-hypervisor.yml
