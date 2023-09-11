@@ -86,6 +86,15 @@ CA_FQDN=ca.core.example.com
 
 configure_host_os() {
      echo get the hypervisor host ready
+     # SSH - generate RSA keys for me
+     # ssh-keygen -f ~/.ssh/id_rsa -q -N ""
+     # SSH - generate RSA keys for root
+     # sudo ssh-keygen -f ~/.ssh/id_rsa -q -N ""
+     # SSH - extra security
+     # If SSH service on this box is accessible to the Internet
+     # Use key pairs only, disable password login
+     # For more information, run 'man sshd_config'
+     # echo "AuthenticationMethods publickey" >> /etc/ssh/sshd_config
      # subscription-manager register
      # Uses Simple Content Access, no need to attach a subscription
      # Package update
@@ -96,12 +105,6 @@ configure_host_os() {
      # Enable nested virtualization? 
      # In /etc/modprobe.d/kvm.conf 
      # options kvm_amd nested=1
-     # SSH security
-     # If SSH service on this box is accessible to the Internet
-     # Use key pairs only, disable password login
-     # For more information, see
-     #   man sshd_config
-     # echo "AuthenticationMethods publickey" >> /etc/ssh/sshd_config
 }
 
 

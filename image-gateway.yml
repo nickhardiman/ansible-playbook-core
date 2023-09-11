@@ -31,6 +31,8 @@
   become: true
   gather_facts: false
   serial: 1
+  vars_files:
+    - ~/vault-credentials.yml
   pre_tasks:
     - name: don't overwrite anything
       meta: end_host
