@@ -121,7 +121,7 @@ does_ansible_user_exist() {
      ansible_user_exists=false
      id ansible_user
      res_id=$?
-     if [ $res_id -ne 0 ]
+     if [ $res_id -eq 0 ]
      then
        ansible_user_exists=true
      fi
@@ -233,9 +233,8 @@ download_ansible_libraries() {
         --collections-path /usr/share/ansible/collections
     # check 
     ls /usr/share/ansible/collections/ansible_collections/community/
-    # Install other collections to ~/ansible/collections/
-    # ??? why did I do this? 
-    # ??? rearrange path in https://github.com/nickhardiman/ansible-playbook-core/blob/main/ansible.cfg#L13
+    # Install other collections to ~/.ansible/collections/
+    # (https://github.com/nickhardiman/ansible-playbook-core/blob/main/ansible.cfg#L13)
     cd ~/ansible/playbooks/ansible-playbook-core/
     ansible-galaxy collection install -r collections/requirements.yml 
     # Install roles. 
