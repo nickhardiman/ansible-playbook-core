@@ -11,44 +11,18 @@
 # Read it. 
 # Edit and change my details to yours.
 # More details below. 
-# 1. Set ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN.
-# 2. Set OFFLINE_TOKEN.
-# 3. Change git name, email and user.
-# 4. Set RHSM (Red Hat Subscription Manager) account.
+# 1. Set RHSM (Red Hat Subscription Manager) account.
+# 2. Set ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN.
+# 3. Set OFFLINE_TOKEN.
+# 4. Change git name, email and user.
 # Run this script
 #   bash -x bootstrap.sh
 
 #-------------------------
 # Edit and change my details to yours.
 
-# 1. Set ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN.
-# Authenticate to Red Hat Automation Hub using a token.
-# Get a token from https://console.redhat.com/ansible/automation-hub/token#
-# Set an environment variable for identification.
-# You can also put your offline token in ansible.cfg.
-export ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN=eyJhbGciOi...(hundreds more characters)...asdf
 
-
-# 2. Set OFFLINE_TOKEN.
-# Authenticate to Red Hat portal using an API token.
-# After the hypervisor is installed, 
-# the role iso_rhel_download downloads a RHEL 9.2 ISO file. 
-# The role uses one of the Red Hat APIs, which requires 
-# an API token.
-# Open the API token page. https://access.redhat.com/management/api
-# Click the button to generate a token.
-# Copy the token.
-# Paste the token into an environment variable.
-export OFFLINE_TOKEN=eyJh...(about 600 more characters)...xmtyM
-
-
-# 3. Change git name, email and user.
-GIT_NAME="Nick Hardiman"
-GIT_EMAIL=nick@email-domain.com
-GIT_USER=nick
-
-
-# 4. Set RHSM (Red Hat Subscription Manager) account.
+# 1. Set RHSM (Red Hat Subscription Manager) account.
 # If you don't have one, get a free
 # Red Hat Enterprise Linux Individual Developer Subscription.
 # Sign up for your free RHSM (Red Hat Subscription Manager) account at 
@@ -61,6 +35,43 @@ RHSM_USER=my_developer_user
 RHSM_PASSWORD='my developer password'
 
 
+# 2. Set ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN.
+# Anyone with an RHSM account can use Red Hat Automation Hub.
+# You can download Ansible collections after authenticating with a token.
+#
+# Open the API token page. 
+#   https://console.redhat.com/ansible/automation-hub/token#
+# Click the button to generate a token.
+# Copy the token.
+# Paste the token here. 
+# The ansible-galaxy command looks for this environment variable.
+export ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN=eyJhbGciOi...(about 800 more characters)...asdf
+# (You can also put your offline token in ansible.cfg.)
+
+
+# 3. Set OFFLINE_TOKEN.
+# Authenticate to Red Hat portal using an API token.
+# After the hypervisor is installed, 
+# the role https://github.com/nickhardiman/ansible-collection-platform/tree/main/roles/iso_rhel_download
+# downloads RHEL install DVD ISO files. 
+# The role uses one of the Red Hat APIs, which requires an API token.
+#
+# Open the API token page. 
+#   https://access.redhat.com/management/api
+# Click the button to generate a token.
+# Copy the token.
+# Paste the token here. 
+# The playbook will copy the value from this environment variable.
+export OFFLINE_TOKEN=eyJh...(about 600 more characters)...xmtyM
+
+
+# 4. Change git name, email and user.
+GIT_NAME="Nick Hardiman"
+GIT_EMAIL=nick@email-domain.com
+GIT_USER=nick
+
+
+
 # That's it. 
 # No need to change anything below here. 
 
@@ -69,8 +80,30 @@ RHSM_PASSWORD='my developer password'
 # Bash functions 
 # https://phoenixnap.com/kb/bash-function
 
+
+configure_host_os() {
+     echo get the hypervisor host ready
+     # subscription-manager register
+     # Uses Simple Content Access, no need to attach a subscription
+     # Package update
+     # dnf -y update
+     # systemctl reboot
+     # Set hostname 
+     # hostnamectl hostname host.core.example.com
+     # Enable nested virtualization? 
+     # In /etc/modprobe.d/kvm.conf 
+     # options kvm_amd nested=1
+     # SSH security
+     # If SSH service on this box is accessible to the Internet
+     # Use key pairs only, disable password login
+     # For more information, see
+     #   man sshd_config
+     # echo "AuthenticationMethods publickey" >> /etc/ssh/sshd_config
+}
+
+
 setup_git() {
-     # install and configure git
+     echo install and configure git
      sudo dnf install --assumeyes git
      git config --global user.name         "$GIT_NAME"
      git config --global user.email        $GIT_EMAIL
@@ -81,6 +114,16 @@ setup_git() {
      git config --global pull.rebase false
      # check 
      git config --global --list
+}
+
+
+does_ansible_user_exist() {
+     ansible_user_exists=false
+     id ansible_user
+     if [ $res_id -ne 0 ]
+     then
+       ansible_user_exists=true
+     fi
 }
 
 
@@ -117,7 +160,7 @@ setup_ansible_user_keys() {
 
 
 copy_ansible_user_public_key() {
-     # !!! pubkey update is missing. 
+     USER_ANSIBLE_PUBLIC_KEY=$(<$HOME/.ssh/ansible-key.pub)
      # Public key is fixed here. 
      # https://github.com/nickhardiman/ansible-collection-platform/blob/main/roles/libvirt_machine_kickstart/defaults/main.yml#L88
      # [source,shell]
@@ -126,6 +169,7 @@ copy_ansible_user_public_key() {
      #   ssh-rsa AAA...YO0= pubkey for ansible
      # ....
 }
+
 
 setup_ansible_user_sudo() {
      # Allow passwordless sudo.
@@ -142,7 +186,7 @@ check_ansible_user() {
           ansible_user@localhost  \
           sudo id
      res_ssh=$?
-     if [ res_ssh != 0 ]; then 
+     if [ $res_ssh -ne 0 ]; then 
           echo "error: can't SSH and sudo with ansible_user"
           exit $res_ssh
      fi
@@ -152,26 +196,6 @@ check_ansible_user() {
 install_ansible_core() {
      # install Ansible
      sudo dnf install --assumeyes ansible-core
-}
-
-
-download_ansible_libraries() {
-# install Ansible
-     # Install collections and roles from Ansible Galaxy 
-     # (https://galaxy.ansible.com) 
-     # and from Ansible Automation Hub
-     # (https://console.redhat.com/ansible/automation-hub).
-     # Installing from Ansible Automation Hub requires the env var 
-     # ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN.
-     # install Ansible libvirt collection
-     sudo ansible-galaxy collection install community.libvirt \
-          --collections-path /usr/share/ansible/collections
-     # check 
-     ls /usr/share/ansible/collections/ansible_collections/community/
-     # Install collections. 
-     ansible-galaxy collection install -r collections/requirements.yml 
-     # Install roles. 
-     ansible-galaxy role install -r roles/requirements.yml 
 }
 
 
@@ -196,20 +220,25 @@ clone_my_ansible_playbook() {
 }
 
 
-configure_host_os() {
-     # hostname 
-     # hostnamectl hostname host.core.example.com
-     # enable nested virtualization? 
-     # /etc/modprobe.d/kvm.conf 
-     # options kvm_amd nested=1
-
-     # SSH security
-     # if SSH service on this box is accessible to the Internet
-     # use key pairs only, disable password login
-     # for more information, see
-     #   man sshd_config
-     #echo "AuthenticationMethods publickey" >> /etc/ssh/sshd_config
+download_ansible_libraries() {
+    # Install collections and roles from Ansible Galaxy 
+    # (https://galaxy.ansible.com) 
+    # and from Ansible Automation Hub
+    # (https://console.redhat.com/ansible/automation-hub).
+    # Installing from Ansible Automation Hub requires the env var 
+    # ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN.
+    # install Ansible libvirt collection
+    sudo ansible-galaxy collection install community.libvirt \
+        --collections-path /usr/share/ansible/collections
+    # check 
+    ls /usr/share/ansible/collections/ansible_collections/community/
+    # Install collections. 
+    cd ~/ansible/playbooks/ansible-playbook-core/
+    ansible-galaxy collection install -r collections/requirements.yml 
+    # Install roles. 
+    ansible-galaxy role install -r roles/requirements.yml 
 }
+
 
 
 add_rhsm_account_to_vault () {
@@ -226,62 +255,68 @@ EOF
 
 
 setup_ca_certificate() {
-     # Role https://github.com/nickhardiman/ansible-collection-platform/tree/main/roles/server_cert
-     # expects to find a CA certificate and matching private key.
-     # CA private key, a file on the hypervisor here.
-     #   /etc/pki/tls/private/ca-certificate.key
-     # CA certificate, a file on the hypervisor here.
-     #   /etc/pki/ca-trust/source/anchors/ca-certificate.pem
-     # https://hardiman.consulting/rhel/9/security/id-certificate-ca-certificate.html
-     # Create a private key and CSR.
-     openssl req \
-          -new \
-          -newkey rsa:2048 \
-          -passout file:cakey.pass \
-          -keyout cakey.pem \
-          -out careq.pem \
-          -config ./openssl.cnf \
-          -subj "/C=UK/ST=mystate/O=myorg/OU=myou/CN=ca.build.example.com"
-     # Self-sign the certificate. 
-     openssl ca \
-          -create_serial \
-          -out cacert.pem \
-          -days 365 \
-          -passin file:cakey.pass \
-          -keyfile cakey.pem \
-          -selfsign \
-          -extensions v3_ca \
-          -config ./openssl.cnf \
-          -infiles careq.pem
-     # https://hardiman.consulting/rhel/9/security/id-certificate-ca-trust.html
-     # Trust the certificate. 
-     sudo cp ./cacert.pem /etc/pki/ca-trust/source/anchors/
-     sudo update-ca-trust
-     # Clean up.
-     rm cakey.pass cakey.pem careq.pem cacert.pem
+    # Role https://github.com/nickhardiman/ansible-collection-platform/tree/main/roles/server_cert
+    # expects to find a CA certificate and matching private key.
+    # CA private key, a file on the hypervisor here.
+    #   /etc/pki/tls/private/ca-certificate.key
+    # CA certificate, a file on the hypervisor here.
+    #   /etc/pki/ca-trust/source/anchors/ca-certificate.pem
+    # https://hardiman.consulting/rhel/9/security/id-certificate-ca-certificate.html
+    CA_CN=ca.build.example.com
+    mkdir ~/ca
+    cd ~/ca
+    # Create a CA private key.
+    openssl genrsa \
+        -out $CA_CN_key.pem 2048
+    # Create a CA certificate.
+    openssl req \
+        -x509 \
+        -sha256 \
+        -days 365 \
+        -nodes \
+        -key ./$CA_CN_key.pem \
+        -subj "/C=UK/ST=mystate/O=myorg/OU=myou/CN=$CA_CN" \
+        -out $CA_CN_cert.pem
+    # https://hardiman.consulting/rhel/9/security/id-certificate-ca-trust.html
+    # Trust the certificate. 
+    sudo cp ./$CA_CN_cert.pem /etc/pki/ca-trust/source/anchors/ca-certificate.pem
+    sudo cp ./$CA_CN_key.pem /etc/pki/tls/private/ca-certificate.key
+    sudo update-ca-trust
+    # Clean up.
+    # rm cakey.pass cakey.pem careq.pem cacert.pem
 }
 
 
 run_playbook() {
-     # create machines
-     ansible-playbook main.yml
+    cd ~/ansible/playbooks/ansible-playbook-core/
+    # create machines
+    ansible-playbook \
+        --vault-pass-file ~/my-vault-pass  \
+        --extra-vars="user_ansible_public_key=$USER_ANSIBLE_PUBLIC_KEY" \
+    main.yml
 }
 
 
 #-------------------------
 # main 
 
+configure_host_os
 setup_git
-setup_ansible_user_account
-setup_ansible_user_keys
-copy_ansible_user_public_key
-setup_ansible_user_sudo
+does_ansible_user_exist
+if $ansible_user_exists 
+then
+    echo ansible_user already exists
+else
+    setup_ansible_user_account
+    setup_ansible_user_keys
+    copy_ansible_user_public_key
+    setup_ansible_user_sudo
+fi
 check_ansible_user
 install_ansible_core
-download_ansible_libraries
 clone_my_ansible_collection
 clone_my_ansible_playbook
-configure_host_os
+download_ansible_libraries
 add_rhsm_account_to_vault
 setup_ca_certificate
 run_playbook

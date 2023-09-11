@@ -109,14 +109,14 @@ Some things, like that "dnf install" line, won't work on other OSs.
 
 [source,shell]
 ....
-curl -O https://raw.githubusercontent.com/nickhardiman/ansible-playbook-lab/main/bootstrap.sh 
+curl -O https://raw.githubusercontent.com/nickhardiman/ansible-playbook-core/main/bootstrap.sh 
 ....
 
 * Read the script 
 * Follow the instructions and edit the script.
 
 
-=== set an API token
+==== set an API token
 
 After the hypervisor is installed, the role 
 https://github.com/nickhardiman/ansible-collection-platform/tree/main/roles/iso_rhel_download[iso_rhel_download] 
@@ -137,7 +137,7 @@ Don't use an automation hub token from
 https://console.redhat.com/ansible/automation-hub/token.
 
 
-=== add Red Hat Subscription account to the vault
+==== add Red Hat Subscription account to the vault
 
 Each new VM will connect to the RHSM (Red Hat Subscription Management) network,
 register, attach a subscription entitlement, and download from 
@@ -158,7 +158,7 @@ ansible-vault encrypt --vault-pass-file ~/my-vault-pass ~/vault-credentials.yml
 ....
 
 
-=== edit inventory
+==== edit inventory
 
 Set up these hosts in the inventory file inventory.ini. 
 
@@ -166,23 +166,8 @@ Set up these hosts in the inventory file inventory.ini.
 *  hypervisor - the physical machine that hosts the virtual machines. 
 
 
-=== fix the IP address of gateway 
 
-IP address of the gateway VM is fixed. 
-
-* IP address: 
-https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.core.example.com/main.yml#L21
-* MAC address: https://github.com/nickhardiman/ansible-playbook-core/blob/main/group_vars/all/main.yml#L9 and https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.core.example.com/main.yml#L18
-
-
-Change your DHCP service to dish out this IP address to the MAC address. 
-
-
-!!! this is a crap idea. 
-Replace with something that allows a dynamically allocated IPv4 address and copies it to config. 
-
-
-=== update ansible_user public key 
+==== update ansible_user public key 
 
 !!! another dumb-ass oversight. 
 Why not do this automatically? 
@@ -200,7 +185,7 @@ user_ansible_public_key: |
 It should be sourced from the new ansible_user account. 
 
 
-=== create a CA certificate and key 
+==== create a CA certificate and key 
 
 !!! Half-assed approach to PKI. 
 Replace with IdM/IPA management. 
@@ -224,6 +209,23 @@ CA certificate, a file on the hypervisor here.
 Any point storing it here? 
 
 * https://github.com/nickhardiman/ansible-playbook-core/blob/main/files/ca-certificate.pem
+
+
+
+=== fix the IP address of gateway 
+
+IP address of the gateway VM is fixed. 
+
+* IP address: 
+https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.core.example.com/main.yml#L21
+* MAC address: https://github.com/nickhardiman/ansible-playbook-core/blob/main/group_vars/all/main.yml#L9 and https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.core.example.com/main.yml#L18
+
+
+Change your DHCP service to dish out this IP address to the MAC address. 
+
+
+!!! this is a crap idea. 
+Replace with something that allows a dynamically allocated IPv4 address and copies it to config. 
 
 
 === run the bootstrap script 
