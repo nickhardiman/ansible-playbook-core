@@ -71,9 +71,12 @@ GIT_EMAIL=nick@email-domain.com
 GIT_USER=nick
 
 
-
 # That's it. 
 # No need to change anything below here. 
+
+# CA name to go in the certificate. 
+# !!! should include lab_domain value
+CA_FQDN=ca.core.example.com
 
 
 #-------------------------
@@ -264,25 +267,24 @@ setup_ca_certificate() {
     # CA certificate, a file on the hypervisor here.
     #   /etc/pki/ca-trust/source/anchors/ca-certificate.pem
     # https://hardiman.consulting/rhel/9/security/id-certificate-ca-certificate.html
-    CA_CN=ca.build.example.com
     mkdir ~/ca
     cd ~/ca
     # Create a CA private key.
     openssl genrsa \
-        -out $CA_CN_key.pem 2048
+        -out $CA_FQDN_key.pem 2048
     # Create a CA certificate.
     openssl req \
         -x509 \
         -sha256 \
         -days 365 \
         -nodes \
-        -key ./$CA_CN_key.pem \
-        -subj "/C=UK/ST=mystate/O=myorg/OU=myou/CN=$CA_CN" \
-        -out $CA_CN_cert.pem
+        -key ./$CA_FQDN_key.pem \
+        -subj "/C=UK/ST=mystate/O=myorg/OU=myou/CN=$CA_FQDN" \
+        -out $CA_FQDN_cert.pem
     # https://hardiman.consulting/rhel/9/security/id-certificate-ca-trust.html
     # Trust the certificate. 
-    sudo cp ./$CA_CN_cert.pem /etc/pki/ca-trust/source/anchors/ca-certificate.pem
-    sudo cp ./$CA_CN_key.pem /etc/pki/tls/private/ca-certificate.key
+    sudo cp ./$CA_FQDN_cert.pem /etc/pki/ca-trust/source/anchors/ca-certificate.pem
+    sudo cp ./$CA_FQDN_key.pem /etc/pki/tls/private/ca-certificate.key
     sudo update-ca-trust
     # Clean up.
     # rm cakey.pass cakey.pem careq.pem cacert.pem

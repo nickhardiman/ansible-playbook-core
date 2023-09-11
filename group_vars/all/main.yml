@@ -10,7 +10,7 @@ public_mac_prefix:     "52:54:00:10"
 public_nmcli_name: "bridge-{{ public_net_short_name }}0"
 public_bridge_name: "br{{ public_net_short_name }}0"
 #
-lab_net_short_name: build
+lab_net_short_name: core
 lab_libvirt_name:   "net{{ lab_net_short_name }}0"
 lab_net_prefix: "192.168.11"
 lab_mac_prefix: "52:54:00:11"
