@@ -39,6 +39,8 @@
 # It runs squid to proxy web requests to the Internet, and 
 # bind to proxy DNS requests to the Internet. 
 - ansible.builtin.import_playbook: image-gateway.yml
+# !!! these 6 machine-*.yml files are identical.
+# use one file, add vars: and replace 'hosts: bla' with 'hosts: "{{ host_to_start }}"'
 - ansible.builtin.import_playbook: machine-gateway.yml
 # ipsal (Internet Protocol Services, Application Layer) provides dhcp and ntp
 - ansible.builtin.import_playbook: image-ipsal.yml

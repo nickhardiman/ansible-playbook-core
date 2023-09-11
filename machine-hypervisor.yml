@@ -1,4 +1,10 @@
 ---
+# !!! hangs on first network reconfig. 
+# might need 
+#   - name: Reset connection
+#     meta: reset_connection
+# in nick.platform.libvirt_net_public
+
 - name: Build new hypervisor
   hosts: hypervisor
   become: true
