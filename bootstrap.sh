@@ -276,20 +276,21 @@ setup_ca_certificate() {
     cd ~/ca
     # Create a CA private key.
     openssl genrsa \
-        -out $CA_FQDN_key.pem 2048
+        -out $CA_FQDN-key.pem 2048
     # Create a CA certificate.
     openssl req \
         -x509 \
         -sha256 \
         -days 365 \
         -nodes \
-        -key ./$CA_FQDN_key.pem \
+        -key ./$CA_FQDN-key.pem \
         -subj "/C=UK/ST=mystate/O=myorg/OU=myou/CN=$CA_FQDN" \
-        -out $CA_FQDN_cert.pem
+        -out $CA_FQDN-cert.pem
     # https://hardiman.consulting/rhel/9/security/id-certificate-ca-trust.html
     # Trust the certificate. 
-    sudo cp ./$CA_FQDN_cert.pem /etc/pki/ca-trust/source/anchors/ca-certificate.pem
-    sudo cp ./$CA_FQDN_key.pem /etc/pki/tls/private/ca-certificate.key
+    sudo cp ./$CA_FQDN-cert.pem /etc/pki/ca-trust/source/anchors/ca-certificate.pem
+    sudo chmod 0644 /etc/pki/ca-trust/source/anchors/ca-certificate.pem
+    sudo cp ./$CA_FQDN-key.pem /etc/pki/tls/private/ca-certificate.key
     sudo update-ca-trust
     # Clean up.
     # rm cakey.pass cakey.pem careq.pem cacert.pem

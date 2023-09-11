@@ -19,7 +19,8 @@
         checksum_sha256: 517abcc67ee3b7212f57e180f5d30be3e8269e7a99e127a3399b7935c7e00a09
         download_href: 'https://api.access.redhat.com/management/v1/images/517abcc67ee3b7212f57e180f5d30be3e8269e7a99e127a3399b7935c7e00a09/download'
 
-# This is required by cloudalchemy.prometheus
+# ??? python3-cryptography required by community.crypto.x509_certificate_pipe
+# Some are required by cloudalchemy.prometheus
 # json_query requires jmespath install
 # see comments in
 # hostvars/monitor.lab.example.com/main.yml
@@ -27,6 +28,7 @@
     - name: Install more Python RPM packages
       ansible.builtin.dnf:
         name:
+          - python3-cryptography
           - python3-pip
           - python3-pip-wheel
           - python3-jmespath
