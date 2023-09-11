@@ -252,6 +252,8 @@ add_rhsm_account_to_vault () {
      cat << EOF >>  ~/vault-credentials.yml
 rhsm_user: "$RHSM_USER"
 rhsm_password: "$RHSM_PASSWORD"
+# !!! testing, not about RHSM
+user_ansible_public_key: "$USER_ANSIBLE_PUBLIC_KEY"
 EOF
      # Encrypt the new file. 
      echo 'my vault password' >  ~/my-vault-pass
@@ -290,13 +292,13 @@ setup_ca_certificate() {
     # rm cakey.pass cakey.pem careq.pem cacert.pem
 }
 
-
+# !!! not working
+#         --extra-vars="user_ansible_public_key=$USER_ANSIBLE_PUBLIC_KEY" \
 run_playbook() {
     cd ~/ansible/playbooks/ansible-playbook-core/
     # create machines
     ansible-playbook \
         --vault-pass-file ~/my-vault-pass  \
-        --extra-vars="user_ansible_public_key=$USER_ANSIBLE_PUBLIC_KEY" \
     main.yml
 }
 
