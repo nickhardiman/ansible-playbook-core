@@ -311,10 +311,10 @@ then
 else
     setup_ansible_user_account
     setup_ansible_user_keys
-    copy_ansible_user_public_key
     setup_ansible_user_sudo
 fi
 check_ansible_user
+copy_ansible_user_public_key
 install_ansible_core
 clone_my_ansible_collection
 clone_my_ansible_playbook
