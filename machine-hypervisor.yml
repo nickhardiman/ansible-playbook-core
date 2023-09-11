@@ -11,10 +11,12 @@
     # defaults to RHEL 9.2 DVD ISO
     - role: nick.platform.iso_rhel_download
       vars: 
+        checksum_sha256: a18bf014e2cb5b6b9cee3ea09ccfd7bc2a84e68e09487bb119a98aa0e3563ac2
         download_href: 'https://api.access.redhat.com/management/v1/images/a18bf014e2cb5b6b9cee3ea09ccfd7bc2a84e68e09487bb119a98aa0e3563ac2/download'
     # also get RHEL 8.8 DVD ISO
     - role: nick.platform.iso_rhel_download
       vars: 
+        checksum_sha256: 517abcc67ee3b7212f57e180f5d30be3e8269e7a99e127a3399b7935c7e00a09
         download_href: 'https://api.access.redhat.com/management/v1/images/517abcc67ee3b7212f57e180f5d30be3e8269e7a99e127a3399b7935c7e00a09/download'
 
 # This is required by cloudalchemy.prometheus
