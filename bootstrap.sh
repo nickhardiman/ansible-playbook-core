@@ -227,12 +227,14 @@ download_ansible_libraries() {
     # (https://console.redhat.com/ansible/automation-hub).
     # Installing from Ansible Automation Hub requires the env var 
     # ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN.
-    # install Ansible libvirt collection
+    # install Ansible libvirt collection to the central location.
     sudo ansible-galaxy collection install community.libvirt \
         --collections-path /usr/share/ansible/collections
     # check 
     ls /usr/share/ansible/collections/ansible_collections/community/
-    # Install collections. 
+    # Install other collections to ~/ansible/collections/
+    # ??? why did I do this? 
+    # ??? rearrange path in https://github.com/nickhardiman/ansible-playbook-core/blob/main/ansible.cfg#L13
     cd ~/ansible/playbooks/ansible-playbook-core/
     ansible-galaxy collection install -r collections/requirements.yml 
     # Install roles. 
