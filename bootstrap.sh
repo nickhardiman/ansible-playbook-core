@@ -120,6 +120,7 @@ setup_git() {
 does_ansible_user_exist() {
      ansible_user_exists=false
      id ansible_user
+     res_id=$?
      if [ $res_id -ne 0 ]
      then
        ansible_user_exists=true
