@@ -1,10 +1,10 @@
 for GUEST in \
-  git.lab.example.com         \
-  message.lab.example.com     \
-  monitor.lab.example.com     \
-  id.lab.example.com          \
-  ipsal.lab.example.com       \
-  gateway.lab.example.com     
+  git.core.example.com         \
+  message.core.example.com     \
+  monitor.core.example.com     \
+  id.core.example.com          \
+  ipsal.core.example.com       \
+  gateway.core.example.com     
 do 
   sudo virsh shutdown $GUEST
   sleep 1

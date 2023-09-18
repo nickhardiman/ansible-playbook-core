@@ -1,11 +1,11 @@
 # start
 for GUEST in \
-  gateway.lab.example.com     \
-  ipsal.lab.example.com       \
-  id.lab.example.com          \
-  message.lab.example.com     \
-  git.lab.example.com         \
-  monitor.lab.example.com     
+  gateway.core.example.com     \
+  ipsal.core.example.com       \
+  id.core.example.com          \
+  message.core.example.com     \
+  git.core.example.com         \
+  monitor.core.example.com     
 do 
   sudo virsh start $GUEST
   sleep 10
