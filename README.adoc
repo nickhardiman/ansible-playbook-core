@@ -246,17 +246,21 @@ bash -x bootstrap.sh
 ....
 
 
-=== run, the AAP1 way
+=== run the playbook, the AAP1 way
+
+The bootstrap script hands over to Ansible by running this command. 
+
+[source,shell]
+....
+ansible-playbook  --vault-pass-file ~/my-vault-pass  main.yml
+....
 
 Build the network and machines.
 
 Option --vault-pass-file is required when a new virtual machine gets registered to RHSM. 
 
 
-[source,shell]
-....
-ansible-playbook  --vault-pass-file ~/my-vault-pass  main.yml
-....
+
 
 Or override your RHSM values. 
 
