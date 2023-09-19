@@ -14,7 +14,7 @@ Each VM runs a set of services that support my home lab.
 Under construction. Sections marked with !!! and ??? are notes to self. 
 
 If you can read Ansible's YAML, start with   
-https://github.com/nickhardiman/ansible-playbook-lab/blob/main/main.yml[main.yml]. 
+https://github.com/nickhardiman/ansible-playbook-core/blob/main/main.yml[main.yml]. 
 
 This playbook relies on a bunch (that's another technical term) of collections, including my https://github.com/nickhardiman/ansible-collection-platform[ansible-collection-platform].
 Check out requirements.yml, described below.
@@ -31,14 +31,14 @@ See the cheatsheet below.
 
 A bootstrap shell script kicks off the install. 
 See instructions in 
-https://github.com/nickhardiman/ansible-playbook-lab/blob/main/bootstrap.sh[bootstrap.sh].
+https://github.com/nickhardiman/ansible-playbook-core/blob/main/bootstrap.sh[bootstrap.sh].
 
 
 == VMs 
 
 image::core-network.drawio.png[title="guests"] 
 
-The https://github.com/nickhardiman/ansible-playbook-lab/blob/main/group_vars/all/main.yml[defaults file] defines a lot of values. 
+The https://github.com/nickhardiman/ansible-playbook-core/blob/main/group_vars/all/main.yml[defaults file] defines a lot of values. 
 For instance, most 
 MAC addresses are set to ** 52:54:00:11:00:* **,  and 
 IPv4 addresses are set to ** 192.168.11.* **. 
@@ -53,14 +53,14 @@ name,         interface, MAC,               IP,              domain
 host,      enp1s0,    52:54:00:10:00:02 (!!! failed to override real address), (another address from the home router's pool),     home
 gateway,      enp1s0,    52:54:00:10:00:03, (another address from the home router's pool),     home
 
-*netlab0*,  *brlab0*,   52:54:00:11:00:01, 192.168.11.1,   lab.example.com
- ,           ,           52:54:00:11:00:02, 192.168.11.2,   lab.example.com
-gateway,      enp2s0,    52:54:00:11:00:03, 192.168.11.3,   lab.example.com
-ipsal,        enp1s0,    52:54:00:11:00:04, 192.168.11.4,   lab.example.com
-id,           enp1s0,    52:54:00:11:00:05, 192.168.11.5,   lab.example.com
-message,      enp1s0,    52:54:00:11:00:06, 192.168.11.6,   lab.example.com
-monitor,      enp1s0,    52:54:00:11:00:07, 192.168.11.7,   lab.example.com
-git,          enp1s0,    52:54:00:11:00:08, 192.168.11.8,   lab.example.com
+*netcore0*,  *brcore0*,   52:54:00:11:00:01, 192.168.11.1,   core.example.com
+ ,           ,           52:54:00:11:00:02, 192.168.11.2,   core.example.com
+gateway,      enp2s0,    52:54:00:11:00:03, 192.168.11.3,   core.example.com
+ipsal,        enp1s0,    52:54:00:11:00:04, 192.168.11.4,   core.example.com
+id,           enp1s0,    52:54:00:11:00:05, 192.168.11.5,   core.example.com
+message,      enp1s0,    52:54:00:11:00:06, 192.168.11.6,   core.example.com
+monitor,      enp1s0,    52:54:00:11:00:07, 192.168.11.7,   core.example.com
+git,          enp1s0,    52:54:00:11:00:08, 192.168.11.8,   core.example.com
 |===
 
 === Libvirt definition files 
@@ -296,7 +296,6 @@ required?
 ansible-navigator run main.yml \
   --become-password-file=~/my-pass \
   --mode=stdout \
-  --eei hub1.lab.example.com/my_new_ee  \
   --extra-var='rhsm_user=RH_user'  \
   --extra-var='rhsm_password=RH_password' \
   --extra-var='rhsm_pool_id=12345'  
@@ -313,7 +312,7 @@ Use virsh to see what's happening.
 [source,shell]
 ....
 sudo virsh list -all
-sudo virsh console gateway.lab.example.com
+sudo virsh console gateway.core.example.com
 ....
 
 A fresh kickstart install takes about 5 minutes, then the VM is powered down. 
