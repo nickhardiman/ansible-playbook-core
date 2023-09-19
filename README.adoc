@@ -83,6 +83,67 @@ An XML file for each new VM is stored in /root/libvirt/ on the hypervisor.
 </domain>
 ....
 
+
+
+=== CA certificate and key 
+
+!!! Half-assed approach to PKI. 
+Replace with IdM/IPA management. 
+
+Bootstrap script creates a CA certificate with matching key. 
+
+Role 
+https://github.com/nickhardiman/ansible-collection-platform/tree/main/roles/server_cert
+uses the CA certificate to update trust anchors on VMs and to create server certificates.
+New server certs are stored in /etc/pki/tls/certs/. 
+
+
+files 
+
+CA private key, a password protected file on the hypervisor here. 
+
+* /etc/pki/tls/private/ca-certificate.key
+
+CA certificate, a file on the hypervisor here. 
+
+* /etc/pki/ca-trust/source/anchors/ca-certificate.pem
+
+Any point storing it here? 
+
+* https://github.com/nickhardiman/ansible-playbook-core/blob/main/files/ca-certificate.pem
+
+
+===  ansible_user public key 
+
+Bootstrap script creates a new key pair and stuffs it into the new Ansible vault file. 
+
+Default public key is here. 
+https://github.com/nickhardiman/ansible-collection-platform/blob/main/roles/libvirt_machine_kickstart/defaults/main.yml#L88
+
+
+[source,shell]
+....
+user_ansible_public_key: |
+  ssh-rsa AAA...YO0= pubkey for ansible
+....
+
+It should be sourced from the new ansible_user account. 
+
+
+=== the gateway VM has an IPv4 address from your home network
+
+If you know how IP address pool allocation works on your home router, 
+you can fix the IP address of the gateway VM.
+Not compulsory, but may help you SSH to it more easily. 
+
+Change your DHCP service to dish out this IP address to the 
+https://github.com/nickhardiman/ansible-playbook-core/blob/main/group_vars/all/main.yml#L9 and https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.core.example.com/main.yml#L18[MAC address]. 
+
+!!! IP address here is not used: 
+https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.core.example.com/main.yml#L21
+Write something that copies a dynamically allocated IPv4 address from gateway to config. 
+
+
 == cheat sheet
 
 
@@ -92,6 +153,15 @@ Start with a machine running RHEL 9.
 A fresh minimal install is fine. 
 
 Only tested on a box with one ethernet interface, plugged into the network.
+
+
+
+=== edit inventory
+
+Set up these hosts in the inventory file inventory.ini. 
+
+*  install_host - where the playbook runs. Might be your workstation, or might be the hypervisor host, or might be another machine in your lab.  
+*  hypervisor - the physical machine that hosts the virtual machines. 
 
 
 === edit the bootstrap script
@@ -159,76 +229,6 @@ ansible-vault encrypt --vault-pass-file ~/my-vault-pass ~/vault-credentials.yml
 ....
 
 
-==== edit inventory
-
-Set up these hosts in the inventory file inventory.ini. 
-
-*  install_host - where the playbook runs. Might be your workstation, or might be the hypervisor host, or might be another machine in your lab.  
-*  hypervisor - the physical machine that hosts the virtual machines. 
-
-
-
-==== update ansible_user public key 
-
-!!! another dumb-ass oversight. 
-Why not do this automatically? 
-
-Public key is fixed here. 
-https://github.com/nickhardiman/ansible-collection-platform/blob/main/roles/libvirt_machine_kickstart/defaults/main.yml#L88
-
-
-[source,shell]
-....
-user_ansible_public_key: |
-  ssh-rsa AAA...YO0= pubkey for ansible
-....
-
-It should be sourced from the new ansible_user account. 
-
-
-==== create a CA certificate and key 
-
-!!! Half-assed approach to PKI. 
-Replace with IdM/IPA management. 
-
-Role 
-https://github.com/nickhardiman/ansible-collection-platform/tree/main/roles/server_cert
-uses the CA certificate to update trust anchors on VMs and to create server certificates.
-New server certs are stored in /etc/pki/tls/certs/. 
-
-
-files 
-
-CA private key, a password protected file on the hypervisor here. 
-
-* /etc/pki/tls/private/ca-certificate.key
-
-CA certificate, a file on the hypervisor here. 
-
-* /etc/pki/ca-trust/source/anchors/ca-certificate.pem
-
-Any point storing it here? 
-
-* https://github.com/nickhardiman/ansible-playbook-core/blob/main/files/ca-certificate.pem
-
-
-
-=== fix the IP address of gateway 
-
-IP address of the gateway VM is fixed. 
-
-* IP address: 
-https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.core.example.com/main.yml#L21
-* MAC address: https://github.com/nickhardiman/ansible-playbook-core/blob/main/group_vars/all/main.yml#L9 and https://github.com/nickhardiman/ansible-playbook-core/blob/main/host_vars/gateway.core.example.com/main.yml#L18
-
-
-Change your DHCP service to dish out this IP address to the MAC address. 
-
-
-!!! this is a crap idea. 
-Replace with something that allows a dynamically allocated IPv4 address and copies it to config. 
-
-
 === run the bootstrap script 
 
 * Run the script. 
@@ -239,6 +239,11 @@ and sudoers privilege escalation.
 The playbook uses _ansible_user_ to connect to all the machines, 
 
 The script also clones the playbook repo and installs dependencies. 
+
+[source,shell]
+....
+bash -x bootstrap.sh
+....
 
 
 === run, the AAP1 way
