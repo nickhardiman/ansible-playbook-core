@@ -29,8 +29,8 @@
 #  https://developers.redhat.com/.
 # Check your account works by logging in at https://access.redhat.com/.
 # You can register up to 16 physical or virtual nodes.
-# This core service inventory lists 8.
-# (https://github.com/nickhardiman/ansible-playbook-lab/blob/main/inventory.ini)
+# This inventory lists 8.
+# (https://github.com/nickhardiman/ansible-playbook-core/blob/main/inventory.ini)
 RHSM_USER=my_developer_user
 RHSM_PASSWORD='my developer password'
 
@@ -71,20 +71,21 @@ GIT_EMAIL=nick@email-domain.com
 GIT_USER=nick
 
 
-# That's it. 
-# No need to change anything below here. 
-
 # CA name to go in the certificate. 
 # !!! should include lab_domain value
-CA_FQDN=ca.core.example.com
+LAB_NET_SHORT_NAME=core
+LAB_DOMAIN=$LAB_NET_SHORT_NAME.example.com
+CA_FQDN=ca.$LAB_DOMAIN
+
+# That's it. 
+# No need to change anything below here. 
 
 
 #-------------------------
 # Bash functions 
 # https://phoenixnap.com/kb/bash-function
 
-# assume a basic server install from DVD. 
-# no support, no updated packages, no installs and very little updated config.
+
 configure_host_os() {
      echo get the hypervisor host ready
      # SSH - generate RSA keys for me
@@ -109,7 +110,7 @@ configure_host_os() {
          sudo systemctl reboot
      fi
      # Set hostname 
-     # hostnamectl hostname host.core.example.com
+     # hostnamectl hostname host.$LAB_DOMAIN
      # Enable nested virtualization? 
      # In /etc/modprobe.d/kvm.conf 
      # options kvm_amd nested=1
@@ -228,11 +229,11 @@ clone_my_ansible_collection() {
 }
 
 clone_my_ansible_playbook() {
-     # Get my lab playbook.
+     # Get my playbook.
      mkdir -p ~/ansible/playbooks/
      cd ~/ansible/playbooks/
-     git clone https://github.com/nickhardiman/ansible-playbook-core.git
-     cd ansible-playbook-core/
+     git clone https://github.com/nickhardiman/ansible-playbook-$LAB_NET_SHORT_NAME.git
+     cd ansible-playbook-$LAB_NET_SHORT_NAME/
 }
 
 
@@ -250,7 +251,7 @@ download_ansible_libraries() {
     ls /usr/share/ansible/collections/ansible_collections/community/
     # Install other collections to ~/.ansible/collections/
     # (https://github.com/nickhardiman/ansible-playbook-core/blob/main/ansible.cfg#L13)
-    cd ~/ansible/playbooks/ansible-playbook-core/
+    cd ~/ansible/playbooks/ansible-playbook-$LAB_NET_SHORT_NAME/
     ansible-galaxy collection install -r collections/requirements.yml 
     # Install roles. 
     ansible-galaxy role install -r roles/requirements.yml 
@@ -308,7 +309,7 @@ setup_ca_certificate() {
 # !!! not working
 #         --extra-vars="user_ansible_public_key=$USER_ANSIBLE_PUBLIC_KEY" \
 run_playbook() {
-    cd ~/ansible/playbooks/ansible-playbook-core/
+    cd ~/ansible/playbooks/ansible-playbook-$LAB_NET_SHORT_NAME/
     # create machines
     ansible-playbook \
         --vault-pass-file ~/my-vault-pass  \
@@ -339,5 +340,4 @@ download_ansible_libraries
 add_rhsm_account_to_vault
 setup_ca_certificate
 run_playbook
-
 #-------------------------
