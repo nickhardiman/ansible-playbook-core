@@ -83,29 +83,38 @@ CA_FQDN=ca.core.example.com
 # Bash functions 
 # https://phoenixnap.com/kb/bash-function
 
-
+# assume a basic server install from DVD. 
+# no support, no updated packages, no installs and very little updated config.
 configure_host_os() {
      echo get the hypervisor host ready
      # SSH - generate RSA keys for me
-     # ssh-keygen -f ~/.ssh/id_rsa -q -N ""
+     ssh-keygen -f ~/.ssh/id_rsa -q -N ""
      # SSH - generate RSA keys for root
-     # sudo ssh-keygen -f ~/.ssh/id_rsa -q -N ""
+     sudo ssh-keygen -f ~/.ssh/id_rsa -q -N ""
      # SSH - extra security
      # If SSH service on this box is accessible to the Internet
      # Use key pairs only, disable password login
      # For more information, run 'man sshd_config'
-     # echo "AuthenticationMethods publickey" >> /etc/ssh/sshd_config
-     # subscription-manager register
+     sudo cp $HOME/.ssh/authorized_keys /root/.ssh/authorized_keys
+     sudo su -c 'echo "AuthenticationMethods publickey" >> /etc/ssh/sshd_config'
+     # support
+     sudo subscription-manager register --username=$RHSM_USER --password=$RHSM_PASSWORD
      # Uses Simple Content Access, no need to attach a subscription
      # Package update
-     # dnf -y update
-     # systemctl reboot
+     sudo dnf -y update
+     tracer
+     RET_TRACER=$?
+     if [ $RET_TRACER -eq 104 ]
+     then
+         sudo systemctl reboot
+     fi
      # Set hostname 
      # hostnamectl hostname host.core.example.com
      # Enable nested virtualization? 
      # In /etc/modprobe.d/kvm.conf 
      # options kvm_amd nested=1
 }
+
 
 
 setup_git() {
